@@ -14,18 +14,62 @@ class Etudiant(object):
     def positionMaster(self, master):
         return self.master.index(master)
 
+class MatriceEtudiant(object):
+    def __init__(self,matrice):
+        self.matrice = matrice
+
+    def __repr__(self):
+        return "Matrice Etudiant : \n {}".format(self.matrice)
+
+    def etudiant_libre(self):
+        for etudiant in matrice:
+            if etudiant.pos == "":
+                return True
+        return False
+
 class Master(object):
     def __init__(self,L):
         self.nom = L[0]
         self.listPref = L[1:-1]
         self.capacite = (int) (L[-1])
         self.nombreEtudiant = 0
-        self.pireEtudiant = 0
+        self.pireEtudiant = self.listPref[-1]
+        self.etudiants = []
 
     def __repr__(self):
-        return "nom : {} \n liste de preference {} \n capacite  {} \n nombre d'etudiant {} \n".format(self.nom, self.listPref, self.capacite,self.nombreEtudiant)
+        return "nom : {} \n liste de preference {} \n capacite  {} \n nombre d'etudiant {} \n etudiants {} \n le pire etudiant est {} \n".format(self.nom, self.listPref, self.capacite,self.nombreEtudiant, self.etudiants, self.pireEtudiant)
 
+    def etudiant_pref(e1,e2):
+        for i in self.listPref:
+            if i == e1:
+                pos1 = i
+            if i == e2:
+                pos2 = i
+        if pos1 < pos2:
+            return pos1
+        return pos2
 
+    def change_etu(e1, MatriceEtudiant):
+        e2 = self.pireEtudiant
+        for i in self.listPref:
+            if i == e1:
+                pos1 = i
+            if i == e2:
+                pos2 = i
+        if pos1 < pos2:
+            indice = indexEtudiant(self.etudiants, self.pireEtudiant)
+            del self.etudiants[indice]
+            self.pireEtudiant = e1
+            self.etudiants.append(e1)
+            
+        
+
+def indexEtu(ListeEtudiant, nb):
+    for i in ListeEtudiant:
+        if i.nb == nb:
+            return i.nb
+    return None
+            
 def lectureFichier(s):
     os.chdir('fichier_test')
     monFichier = open(s, "r") # Ouverture en lecture. Indentation par rapport a la ligne d'avant (<-> bloc).
@@ -55,57 +99,15 @@ def PrefSpe(fichier):
         M.append(l)
     return M
 
-def indexMaster(M,master):
-    for i in M:
-       #print(i.nom)
-        if i.nom == master:
-            print("Master :",i.nom)
-            return i
-    print("Master non trouve !")
-    print("master : ",master)
-    print("liste master :",M)
-    return []
 
-def indexEtudiant(M, Nbetudiant):
-    for i in M:
-        if i.nb == Nbetudiant:
-            return i
-    print("Etudiant non trouve !")
-    print("nb :",Nbetudiant)
-    print("L : ",M)
-    return []
-
-def indexPosEtudiant(M, nb):
-    for i in range(0,len(M)):
-        if M[i].nb == nb:
-            return i
-    print("Etudiant pos non trouve !")
-    return []
-    
-
-def gestionMaster(ListeEtudiant, Master, etudiant, etudiant_libre):
-    if Master.nombreEtudiant < Master.capacite:
-        Master.nombreEtudiant += 1
-        etudiant_libre.remove(etudiant)
-        etudiant.master.remove(Master.nom)
-        print("l etudiant {} est ajouter dans le master {}".format(etudiant.nom,Master.nom))
-        
+def gestionMaster(Master, etudiant):
+    #le master est libre
+    if Master.capacite < master.nombreEtudiant:
+        Master.etudiants.append(etudiant)
+        if Master.etudiant_pref(etudiant, master.pireEtudiant) == master.pireEtudiant:
+            master.pireEtudiant = etudiant
     else:
-        if etudiant.nb >= Master.pireEtudiant:
-            #on ajoute le nouvelle etudiant au master
-            Master.nombreEtudiant += 1
-            AncienEtu = indexEtudiant(ListeEtudiant, Master.pireEtudiant)
-            AncienEtu.pos = ""
-            print("l etudiant {} est ajouter dans le master {}".format(etudiant.nom,Master.nom))
-            Master.pireEtudiant = etudiant.nb
-            etudiant.pos = Master.nom
-            etudiant.master.remove(Master.nom)
-            etudiant_libre.remove(etudiant)
-            # et on rajoute l'ancien dans etudiant_libre
-            etudiant_libre.append(AncienEtu)
-            i = indexPosEtudiant(ListeEtudiant, AncienEtu)
-            etudiant_libre[-1] = ListeEtudiant[i]
-    ListeEtudiant[etudiant.nb] = etudiant
+        if 
             
             
             
