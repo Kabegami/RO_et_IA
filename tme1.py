@@ -22,10 +22,17 @@ class MatriceEtudiant(object):
         return "Matrice Etudiant : \n {}".format(self.matrice)
 
     def etudiant_libre(self):
-        for etudiant in matrice:
+        for etudiant in self.matrice:
             if etudiant.pos == "":
                 return True
         return False
+
+    def premier_etu_libre(self):
+        for etudiant in self.matrice:
+            if etudiant.pos == "":
+                return etudiant
+        print("erreur premier_etu_libre")
+        return None
 
 class Master(object):
     def __init__(self,L):
@@ -59,8 +66,11 @@ class Master(object):
         if pos1 < pos2:
             indice = indexEtudiant(self.etudiants, self.pireEtudiant)
             del self.etudiants[indice]
+            MatriceEtudiant[self.pireEtudiant].pos = ""
+            del MatriceEtudiant[self.pireEtudiant].master[0]
             self.pireEtudiant = e1
             self.etudiants.append(e1)
+            MatriceEtudiant[e1.nb].pos = self.nom
             
         
 
@@ -69,7 +79,14 @@ def indexEtu(ListeEtudiant, nb):
         if i.nb == nb:
             return i.nb
     return None
-            
+
+def indexMaster(ListeMaster, master):
+    for i in range(len(ListeMaster)):
+        if ListeMaster[i].nom == master:
+            return i
+    print("erreur index Master ")
+    return None
+
 def lectureFichier(s):
     os.chdir('fichier_test')
     monFichier = open(s, "r") # Ouverture en lecture. Indentation par rapport a la ligne d'avant (<-> bloc).
@@ -100,14 +117,18 @@ def PrefSpe(fichier):
     return M
 
 
-def gestionMaster(Master, etudiant):
+def gestionMaster(M, e, MatriceEtudiant):
     #le master est libre
-    if Master.capacite < master.nombreEtudiant:
-        Master.etudiants.append(etudiant)
-        if Master.etudiant_pref(etudiant, master.pireEtudiant) == master.pireEtudiant:
-            master.pireEtudiant = etudiant
+    if M.capacite > M.nombreEtudiant:
+        M.etudiants.append(e.nb)
+        MatriceEtudiant[e.nb].pos = M.nom
+        M.nombreEtudiant += 1
+        if M.etudiant_pref(e, M.pireEtudiant) == M.pireEtudiant:
+            master.pireEtudiant = e
     else:
-        if 
+        print("etudiant ", e)
+        print("MAtrice Etudiant :", MatriceEtudiant.matrice)
+        Master.change_etu(e.nb, MatriceEtudiant.matrice)
             
             
             
@@ -120,28 +141,21 @@ def GaleShapley(M1,M2):
     ListeMaster = []
     for i in M1:
         ListeEtudiant.append(Etudiant(i))
-    print(ListeEtudiant)
+    MatriceEtu = MatriceEtudiant(ListeEtudiant)
     for i in M2:
         ListeMaster.append(Master(i))
+    print(MatriceEtu)
     print(ListeMaster)
-    
-    #on veut travailler sur une unique instance de la classe etudiant pour qu'elle soit a jour 
-    #etudiant_libre = []
-    #for i in ListeEtudiant:
-     #   etudiant_libre.append(i.nb)
-    etudiant_libre = ListeEtudiant[::]    
-    while etudiant_libre != []:
+    while MatriceEtu.etudiant_libre():
         print("---------------------------------------------- ")
         print("             NOUVEAU TOUR DE BOUCLE            ")
         print("---------------------------------------------- ")
-        e = etudiant_libre[0]
+        e = MatriceEtu.premier_etu_libre()
         print("numero de l'etudiant : ",e.nb)
         master = e.master[0]
+        idMaster = indexMaster(ListeMaster, master)
         print("master de l'etudiant : ",master)
-        m = indexMaster(ListeMaster,master)
-        print("cherche a integrer ", m.nom)
-        print("Liste des etudiants libre", etudiant_libre)
-        gestionMaster(ListeEtudiant,m,e, etudiant_libre)
+        gestionMaster(ListeMaster[idMaster], e, MatriceEtu.matrice)
         
         
     
