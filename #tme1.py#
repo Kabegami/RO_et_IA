@@ -271,7 +271,7 @@ def GaleShapleyMaster(M1,M2):
         print("le master {} a les etudiants {}".format(master.nom, master.etudiants))
         
 
-
+        
 #---------------- FONCTION MAIN ---------------------
 M1 = PrefEtu('TestPrefEtu.txt')
 M2 = PrefSpe('TestPrefSpe.txt')
