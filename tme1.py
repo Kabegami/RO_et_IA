@@ -1,5 +1,9 @@
 import os
 import numpy
+import random
+import time
+import matplotlib.pyplot as plt
+import math
 
 #--------------------------------------------------
 #                 CLASSES
@@ -82,9 +86,9 @@ class Master(object):
             if i == e2:
                 pos2 = i
         if pos1 < pos2:
-            print("l'etudiant {} rentre dans le master {}".format(e1, self.nom))
-            print("l'etudiant {} sort du le master {}".format(e2, self.nom))
-            print("pire etudiant",self.pireEtudiant)
+            #print("l'etudiant {} rentre dans le master {}".format(e1, self.nom))
+            #print("l'etudiant {} sort du le master {}".format(e2, self.nom))
+            #print("pire etudiant",self.pireEtudiant)
             indice = indexEtu(self.etudiants, self.pireEtudiant)
             del self.etudiants[indice]
             MatriceEtudiant[self.pireEtudiant].pos = ""
@@ -93,7 +97,7 @@ class Master(object):
             self.etudiants.append(e1)
             MatriceEtudiant[e1].pos = self.nom
         else:
-            print("l'etudiant {} est refuser par le master {}".format(e1, self.nom))
+            #print("l'etudiant {} est refuser par le master {}".format(e1, self.nom))
             #print(MatriceEtudiant)
             del MatriceEtudiant[e1].master[0]
             
@@ -105,8 +109,8 @@ class Master(object):
 
             
 def indexEtu(ListeEtudiant, nb):
-    print("nb ;",nb)
-    print("liste etudiant",ListeEtudiant)
+    #print("nb ;",nb)
+    #print("liste etudiant",ListeEtudiant)
     for i in range(len(ListeEtudiant)):
         if ListeEtudiant[i] == nb:
             return i
@@ -156,14 +160,14 @@ def gestionMaster(M, e, MatriceEtudiant):
         #cas du premier etu
         if M.nombreEtudiant == 0:
             M.pireEtudiant = e.nb
-        print("l'etudiant {} rentre dans le master {}".format(e.nb, M.nom))
+        #print("l'etudiant {} rentre dans le master {}".format(e.nb, M.nom))
         M.etudiants.append(e.nb)
         MatriceEtudiant[e.nb].pos = M.nom
         M.nombreEtudiant += 1
         if M.etudiant_pref(e.nb, M.pireEtudiant) == M.pireEtudiant:
             M.pireEtudiant = e.nb
     else:
-        print("le master est plein")
+        #print("le master est plein")
         M.change_etu(e.nb, MatriceEtudiant)
             
             
@@ -180,23 +184,25 @@ def GaleShapleyEtudiant(M1,M2):
     MatriceEtu = MatriceEtudiant(ListeEtudiant)
     for i in M2:
         ListeMaster.append(Master(i))
-    print(MatriceEtu)
-    print(ListeMaster)
+    #print(MatriceEtu)
+    #print(ListeMaster)
     while MatriceEtu.etudiant_libre():
-        print("---------------------------------------------- ")
-        print("             NOUVEAU TOUR DE BOUCLE            ")
-        print("---------------------------------------------- ")
+        #print("---------------------------------------------- ")
+        #print("             NOUVEAU TOUR DE BOUCLE            ")
+        #print("---------------------------------------------- ")
         e = MatriceEtu.premier_etu_libre()
-        print("numero de l'etudiant : ",e.nb)
+        #print("numero de l'etudiant : ",e.nb)
         master = e.master[0]
+        #print("etudiant e : {}".format(e))
+        #print("master : {}".format(master))
         idMaster = indexMaster(ListeMaster, master)
-        print("master de l'etudiant : ",master)
+        #print("master de l'etudiant : ",master)
         gestionMaster(ListeMaster[idMaster], e, MatriceEtu.matrice)
-    print("----------------------------------------------")
-    print("                RESULTAT FINAL                ")
-    print("----------------------------------------------")
-    for i in MatriceEtu.matrice:
-        print("l'etudiant {} est dans le master {}".format(i.nb, i.pos))
+    #print("----------------------------------------------")
+    #print("                RESULTAT FINAL                ")
+    #print("----------------------------------------------")
+    #for i in MatriceEtu.matrice:
+        #print("l'etudiant {} est dans le master {}".format(i.nb, i.pos))
 
 def MasterLibre(MatriceMaster):
     for master in MatriceMaster:
@@ -219,27 +225,27 @@ def TrouveMaster(ListeMaster, master):
 def MasterProposeEtu(ListeMaster, master, etu):
     if etu.pos == "":
         #si l'etudiant n'a pas de master il accepte, on le supprimer de la liste de preference
-        print("l'etudiant {} n'est dans aucun master et rentre dans le master {}".format(etu.nom, master.nom))
+        #print("l'etudiant {} n'est dans aucun master et rentre dans le master {}".format(etu.nom, master.nom))
         etu.pos = master.nom
         del master.listPref[0]
         master.etudiants.append(etu.nb)
         master.nombreEtudiant += 1
     else:
-        print("l'etudiant {} a un master".format(etu.nom))
+        #print("l'etudiant {} a un master".format(etu.nom))
         if etu.ChangerMaster(master):
             #on supprime l'etudiant de l'ancien master
             AncienMaster = TrouveMaster(ListeMaster, etu.pos)
-            print("l'etudiant {} quitte le master {} ".format(etu.nom, AncienMaster.nom))
+            #print("l'etudiant {} quitte le master {} ".format(etu.nom, AncienMaster.nom))
             del AncienMaster.etudiants[AncienMaster.etudiants.index(etu.nb)]
             AncienMaster.nombreEtudiant -= 1
             # on ajoute l'etudiant au nouveau master
-            print("l'etudiant {} rentre dans le master {} ".format(etu.nom,master.nom))
+            #print("l'etudiant {} rentre dans le master {} ".format(etu.nom,master.nom))
             etu.pos = master.nom
             del master.listPref[0]
             master.etudiants.append(etu.nb)
             master.nombreEtudiant += 1
         else:
-            print("l'etudiant {} ne change pas de master".format(etu.nom))
+            #print("l'etudiant {} ne change pas de master".format(etu.nom))
             del master.listPref[0]
             
             
@@ -255,27 +261,119 @@ def GaleShapleyMaster(M1,M2):
     print(ListeMaster)
     print(ListeEtudiant)
     while MasterLibre(ListeMaster):
-        print("---------------------------------------------- ")
-        print("             NOUVEAU TOUR DE BOUCLE            ")
-        print("---------------------------------------------- ")
+        #print("---------------------------------------------- ")
+        #print("             NOUVEAU TOUR DE BOUCLE            ")
+       # print("---------------------------------------------- ")
         master = PremierMasterLibre(ListeMaster)
         #attention e est un nb
         Nbe = master.listPref[0]
         e = ListeEtudiant[Nbe]
-        print("le master {} veut avoir l'etudiant {}".format(master.nom, e.nom))
+        #print("le master {} veut avoir l'etudiant {}".format(master.nom, e.nom))
         MasterProposeEtu(ListeMaster, master, e)
-    print("----------------------------------------------")
-    print("                RESULTAT FINAL                ")
-    print("----------------------------------------------")
+    #print("----------------------------------------------")
+    #print("                RESULTAT FINAL                ")
+    #print("----------------------------------------------")
+    #for master in ListeMaster:
+        #print("le master {} a les etudiants {}".format(master.nom, master.etudiants))
+
+def genere_pref_etudiant(n):
+    ListePref = ["SAR","SFPN","SESI","STL","IMA","DAC","AND","BIM","RES"]
+    Retour = []
+    for i in range(n):
+        ligne = []
+        #on copie la liste car sinon toutes les lignes ont la derniere occurence de shuffle
+        preference = ListePref[::]
+        nom = "Etu"+(str)(i)
+        ligne.append(nom)
+        #print("nom : ",nom)
+        #on melange la liste
+        random.shuffle(preference)
+        for i in preference:
+            ligne.append(i)
+        Retour.append(ligne)
+    return Retour
+
+def genere_pref_master(n):
+    ListeMaster = ["SAR","SFPN","SESI","STL","IMA","DAC","AND","BIM","RES"]
+    ListeEtudiant = []
+    Retour = []
+    for etu in range(n):
+        ListeEtudiant.append(etu)
+    Reste = n/9
+    #print("reste de la division n/9 : {}".format(Reste))
     for master in ListeMaster:
-        print("le master {} a les etudiants {}".format(master.nom, master.etudiants))
+        capacite = n/9
+        if Reste > 0:
+            capacite += 1
+            Reste -= 1
+        ligne = []
+        ligne.append(master)
+        #copie
+        preference = ListeEtudiant[::]
+        random.shuffle(preference)
+        for i in preference:
+            ligne.append(i)
+        ligne.append(capacite)
+        Retour.append(ligne)
+        
+    return Retour
+
+def MesureTempsGaleShapley(n):
+    M1 = genere_pref_etudiant(n)
+    M2 = genere_pref_master(n)
+    tmp1 = time.clock()
+    GaleShapleyEtudiant(M1,M2)
+    tmp2 = time.clock()
+    execution = tmp2 - tmp1
+    print(execution)
+    os.chdir('graphes')
+    fichier = open('temps', 'a')
+    fichier.write("\n {} {}".format(execution, n))
+    fichier.close()
+    os.chdir('..')
+
+def Affiche_graphe(fichier):
+    os.chdir('graphes')
+    fichier = open(fichier,'r')
+    contenu = fichier.readlines()
+    fichier.close()
+    n = []
+    temps = []
+    for i in contenu:
+        ligne = i.split()
+        if ligne != []:
+            temps.append((float)(ligne[0]))
+            n.append((float)(ligne[1]))
+    #plt.plot(n,temps)
+    #plt.show()
+    os.chdir('..')
+    return (n,temps)
+
+def genere_systeme_lineaire():
+    M1 = PrefEtu('TestPrefEtu.txt')
+    M2 = PrefSpe('TestPrefSpe.txt')
+    
         
 
 
 #---------------- FONCTION MAIN ---------------------
-M1 = PrefEtu('TestPrefEtu.txt')
-M2 = PrefSpe('TestPrefSpe.txt')
+#M1 = PrefEtu('TestPrefEtu.txt')
+#M2 = PrefSpe('TestPrefSpe.txt')
 #print(M1)
 #print(M2)
 #GaleShapley(M1,M2)
-GaleShapleyMaster(M1,M2)
+#GaleShapleyMaster(M1,M2)
+MTest = genere_pref_etudiant(10)
+print("fonction genere_pref_etudiant : ",MTest)
+M2Test = genere_pref_master(10)
+print("fonction genere_pref_master : ",M2Test)
+for i in range(500,5000,100):
+    MesureTempsGaleShapley(i)
+n,temps = Affiche_graphe('temps')
+f2 = []
+for i in range(0,len(temps)):
+    val = temps[i] / n[i] ** 2
+    f2.append(val)
+p1 = plt.plot(n,f2,'rs')
+#p2 = plt.plot(n,f,'bs')
+plt.show()
