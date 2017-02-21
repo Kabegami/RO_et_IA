@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# Nicolas, 2015-11-18
-
 from __future__ import absolute_import, print_function, unicode_literals
 from gameclass import Game,check_init_game_done
 from spritebuilder import SpriteBuilder
@@ -18,22 +16,6 @@ import sys
 from Astar import *
 import heapq
 
-
-
-
-
-
-
-# ---- ---- ---- ---- ---- ----
-# ---- Misc                ----
-# ---- ---- ---- ---- ---- ----
-
-
-
-
-
-
-
 # ---- ---- ---- ---- ---- ----
 # ---- Main                ----
 # ---- ---- ---- ---- ---- ----
@@ -43,12 +25,13 @@ game = Game()
 def init(_boardname=None):
     global player,game
     name = _boardname if _boardname is not None else 'pathfindingWorld3'
-    game = Game('Cartes/' + name + '.json', SpriteBuilder)
+    game = Game('Cartes/pathfindingWorld_MultiPlayer2.json', SpriteBuilder)
     game.O = Ontology(True, 'SpriteSheet-32x32/tiny_spritesheet_ontology.csv')
     game.populate_sprite_names(game.O)
     game.fps = 5  # frames per second
     game.mainiteration()
     player = game.player
+    print(type(player))
     
 def main():
 
@@ -82,58 +65,39 @@ def main():
         
     
     #-------------------------------
-    # Building the best path with A*
+    # Strategies des joueurs
     #-------------------------------
-    
+    i = 0
+    print("init state : ",initStates)
     EtatInit = Etat(initStates[0])
     EtatFinal = Etat(goalStates[0])
     chemin  = Astar(EtatInit, EtatFinal, wallStates, distance_Manhattan)
     print("Astar : ",chemin)
     
-        
-    #-------------------------------
-    # Moving along the path
-    #-------------------------------
-        
-    # bon ici on fait juste un random walker pour exemple...
-
-    #row,col = initStates[0]
-    #row2,col2 = (5,5)
-
-    #for i in range(iterations):
-    #
-    #
-     #   x_inc,y_inc = random.choice([(0,1),(0,-1),(1,0),(-1,0)])
-      #  next_row = row+x_inc
-       # next_col = col+y_inc
-       # if ((next_row,next_col) not in wallStates) and next_row>=0 and next_row<=20 and next_col>=0 and next_col<=20:
-        #    player.set_rowcol(next_row,next_col)
-         #   print ("pos 1:",next_row,next_col)
-         #   game.mainiteration()
-
-          #  col=next_col
-          #  row=next_row
-            
-
-    for etat in chemin:
-        row = etat[0]
-        col = etat[1]
-        player.set_rowcol(row,col)
-        print("position:",row,col)
-        game.mainiteration()
-        # si on a  trouvé l'objet on le ramasse
-        
-        if (row,col)==goalStates[0]:
-            o = game.player.ramasse(game.layers)
+    #------------------------------
+    # On fait bouger les joueurs
+    #-----------------------------
+    while i != 3:
+        for etat in chemin:
+            row = etat[0]
+            col = etat[1]
+            player.set_rowcol(row,col)
+            print("position:",row,col)
             game.mainiteration()
-            print ("Objet trouvé!", o)
-            break
-        '''
-        #x,y = game.player.get_pos()
-    
-        '''
+            # si on a  trouvé l'objet on le ramasse
+        
+            if (row,col)==goalStates[i]:
+                o = game.player.ramasse(game.layers)
+                #game.mainiteration()
+                print ("Objet trouvé!", o)
+                i += 1
+                if i != 3:
+                    EtatFinal = Etat(goalStates[i])
+                    chemin = Astar(Etat((row,col)), EtatFinal, wallStates, distance_Manhattan)
 
     pygame.quit()
+
+    #pygame.quit()
     
         
     
