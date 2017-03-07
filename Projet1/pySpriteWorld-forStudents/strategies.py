@@ -10,10 +10,11 @@ def jeu(Init, game, fioles,wallStates, player,numPlayer,score):
             goal = Etat(f)
             print("etat, goal : {},{}".format(etat.position, f))
             c =  Astar(etat,goal,wallStates,distance_Manhattan)
+            print(c)
             etat = Etat(deplace(etat, c, game,player,numPlayer,fioles,score,fiolesPrises))
 
 def deplace(Init, chemin,game,player,numplayer,fioles,score,fiolesPrises):
-    """bug pour je ne sais quelle raison"""
+    """bug(voir le fichier bug)"""
     for etat in chemin:
         row = etat[0]
         col = etat[1]

@@ -1,10 +1,6 @@
-import heapq
+# -*- coding: utf-8 -*-
 
-#creation d'un tas pour la frontiere
-#operation des tas :
-#ajout : heapq.headppush(Tas,x)
-#Retourne premierElem : heapq.heappop(T)
-#heapq.heapify
+import heapq
 
 class Etat(object):
     def __init__(self,position,pere=None,distance=0):
@@ -82,6 +78,7 @@ def distance_Manhattan(etat,etat_final):
     return abs(xF - x) + abs(yF - y)
 
 def Astar(EtatInit, EtatFinal,wallStates, h):
+    """ Dans certain cas Astar ne part pas a partir de l'étatInit"""
     L = [EtatInit]
     frontiere = Frontiere()
     frontiere.ajoute(L)
