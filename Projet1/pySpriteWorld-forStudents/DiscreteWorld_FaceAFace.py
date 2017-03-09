@@ -126,6 +126,8 @@ def main():
         print(fioles[f])
     print("score",score)
     print(type(score))
+    #reserve = Astar_v2(posPlayers[0], f, wallStates, distance_Manhattan)
+    #print("reserve : {}".format(reserve))
     #jeu(posPlayers[0],game,fioles,wallStates, players[0],0,score)
     jeu_par_iteration(game, posPlayers, fioles, wallStates, players, score)
 

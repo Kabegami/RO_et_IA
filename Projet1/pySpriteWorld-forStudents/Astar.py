@@ -41,23 +41,23 @@ def exploreEtat(etat, etatFinal, wallStates, h):
     if (x+1,y) not in wallStates and x+1 >= 0 and y >= 0 and x+1 <= 20 and y <= 20:
         pos = (x+1,y)
         #format position, pere, distance
-        e = Etat(pos, etat , etat.distance + 1)
-        e.f = e.distance + h(e.position, etatFinal.position)
+        e = Etat(pos, etat.position , etat.distance + 1)
+        e.f = e.distance + h(e.position, etatFinal)
         L.append(e)
     if (x-1,y) not in wallStates and x-1 >= 0 and y >= 0 and x-1 <= 20 and y <= 20:
         pos = (x-1,y)
-        e = Etat(pos,etat,etat.distance + 1)
-        e.f = e.distance + h(e.position, etatFinal.position)
+        e = Etat(pos,etat.position,etat.distance + 1)
+        e.f = e.distance + h(e.position, etatFinal)
         L.append(e)
     if (x,y+1) not in wallStates and x >= 0 and y+1 >= 0 and x <= 20 and y+1 <= 20:
         pos = (x,y+1)
-        e = Etat(pos,etat,etat.distance + 1)
-        e.f = e.distance + h(e.position, etatFinal.position)
+        e = Etat(pos,etat.position,etat.distance + 1)
+        e.f = e.distance + h(e.position, etatFinal)
         L.append(e)
     if (x,y-1) not in wallStates and x >= 0 and y-1 >= 0 and x <= 20 and y-1 <= 20:
         pos = (x,y-1)
-        e = Etat(pos,etat,etat.distance + 1)
-        e.f = e.distance + h(e.position, etatFinal.position)
+        e = Etat(pos,etat.position,etat.distance + 1)
+        e.f = e.distance + h(e.position, etatFinal)
         L.append(e)
     return L
 
@@ -68,8 +68,16 @@ def retrouve_chemin(etat_final):
     while etat.pere is not None:
         chemin.append(etat.position)
         etat = etat.pere
-    #print("la premiere case de chemin est : {} et son père est {} ".format(etat.position, etat.pere))
-    chemin.append(etat.position)
+    chemin.reverse()
+    return chemin
+
+def retrouve_chemin_reserve(final,reserve):
+    etat = final
+    chemin = []
+    while reserve[etat] is not None:
+        chemin.append(etat)
+        etat = reserve[etat]
+        print("retrouve_chemin_reserve", etat)
     chemin.reverse()
     return chemin
 
@@ -81,7 +89,7 @@ def distance_Manhattan(etat,etat_final):
     yF = etat[1]
     return abs(xF - x) + abs(yF - y)
 
-def Astar(EtatInit, EtatFinal, wallStates, h):
+def Astar_bug(EtatInit, EtatFinal, wallStates, h):
     """ Bug car le joueur ce téléportee, la première case du chemin ne correspond pas a Etat Init
     Normalement seul l'etat Initial a comme pere None mais on ce retrouve avec plusieurs case sans pere"""
     L = [EtatInit]
@@ -104,4 +112,24 @@ def Astar(EtatInit, EtatFinal, wallStates, h):
     return chemin
     
         
-    
+
+def Astar(init, final, wallStates, h):
+    """ Calcule la distance vis a vis de toutes les cases"""
+    #convertis en Etat
+    EtatInit = Etat(init)
+    L = []
+    L.append(EtatInit)
+    frontiere = Frontiere()
+    frontiere.ajoute(L)
+    reserve = {}
+    bestEtat = EtatInit
+    while frontiere.TasF != [] and bestEtat.position != final:
+        bestEtat = frontiere.bestEtat()
+        if bestEtat.position not in reserve:
+            #on ajoute a la reserve
+            reserve[bestEtat.position] = bestEtat.pere
+            nouvelle_cases = exploreEtat(bestEtat, final, wallStates, h)
+            frontiere.ajoute(nouvelle_cases)
+    chemin = retrouve_chemin_reserve(final, reserve)
+    return chemin
+
