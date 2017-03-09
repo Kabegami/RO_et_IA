@@ -27,45 +27,49 @@ class Frontiere(object):
                 e = etat
         self.ListeEtat.remove(e)
         return e
-
-    def ajoute(self,L):
+    
+    def ajoute(self, L):
         for etat in L:
-            heapq.heappush(self.TasF,etat.f)
+            heapq.heappush(self.TasF, etat.f)
             self.ListeEtat.append(etat)
-
-def exploreEtat(etat,etatFinal, wallStates,reserve,h):
+   
+def exploreEtat(etat, etatFinal, wallStates, h):
+    """ Retourne l'ensemble des cases à ajouter dans la frontière depuis notre case ajouté"""
     L = []
-    Ltuple = []
     x = etat.position[0]
     y = etat.position[1]
     if (x+1,y) not in wallStates and x+1 >= 0 and y >= 0 and x+1 <= 20 and y <= 20:
         pos = (x+1,y)
-        e = Etat(pos,etat,etat.distance +1)
+        #format position, pere, distance
+        e = Etat(pos, etat , etat.distance + 1)
         e.f = e.distance + h(e.position, etatFinal.position)
         L.append(e)
     if (x-1,y) not in wallStates and x-1 >= 0 and y >= 0 and x-1 <= 20 and y <= 20:
         pos = (x-1,y)
-        e = Etat(pos,etat,etat.distance +1)
+        e = Etat(pos,etat,etat.distance + 1)
         e.f = e.distance + h(e.position, etatFinal.position)
         L.append(e)
     if (x,y+1) not in wallStates and x >= 0 and y+1 >= 0 and x <= 20 and y+1 <= 20:
         pos = (x,y+1)
-        e = Etat(pos,etat,etat.distance +1)
+        e = Etat(pos,etat,etat.distance + 1)
         e.f = e.distance + h(e.position, etatFinal.position)
         L.append(e)
     if (x,y-1) not in wallStates and x >= 0 and y-1 >= 0 and x <= 20 and y-1 <= 20:
         pos = (x,y-1)
-        e = Etat(pos,etat,etat.distance +1)
+        e = Etat(pos,etat,etat.distance + 1)
         e.f = e.distance + h(e.position, etatFinal.position)
         L.append(e)
-    reserve[etat.position] = L
+    return L
 
 def retrouve_chemin(etat_final):
+    #print("appel de la fonction retrouve_chemin")
     etat = etat_final
     chemin = []
-    while etat.pere != None:
+    while etat.pere is not None:
         chemin.append(etat.position)
         etat = etat.pere
+    #print("la premiere case de chemin est : {} et son père est {} ".format(etat.position, etat.pere))
+    chemin.append(etat.position)
     chemin.reverse()
     return chemin
 
@@ -77,8 +81,9 @@ def distance_Manhattan(etat,etat_final):
     yF = etat[1]
     return abs(xF - x) + abs(yF - y)
 
-def Astar(EtatInit, EtatFinal,wallStates, h):
-    """ Dans certain cas Astar ne part pas a partir de l'étatInit"""
+def Astar(EtatInit, EtatFinal, wallStates, h):
+    """ Bug car le joueur ce téléportee, la première case du chemin ne correspond pas a Etat Init
+    Normalement seul l'etat Initial a comme pere None mais on ce retrouve avec plusieurs case sans pere"""
     L = [EtatInit]
     frontiere = Frontiere()
     frontiere.ajoute(L)
@@ -86,11 +91,12 @@ def Astar(EtatInit, EtatFinal,wallStates, h):
     bestEtat = EtatInit
     print(bestEtat)
     while frontiere != [] and bestEtat.position != EtatFinal.position:
-        #print("etat final : {}, bestEtat : {}".format(EtatFinal.position, bestEtat.position))
         bestEtat = frontiere.bestEtat()
         if bestEtat.position not in reserve:
-            exploreEtat(bestEtat,EtatFinal,wallStates,reserve,h)
-            frontiere.ajoute(reserve[bestEtat.position])
+            #on ajoute dans la reserve
+            reserve[bestEtat.position] = True
+            nouvelle_cases = exploreEtat(bestEtat, EtatFinal, wallStates, h)
+            frontiere.ajoute(nouvelle_cases)
     if frontiere == []:
         print("il n'existe pas de chemin")
         return []

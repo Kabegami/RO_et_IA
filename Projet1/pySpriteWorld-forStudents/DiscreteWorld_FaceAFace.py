@@ -17,6 +17,7 @@ import numpy as np
 import sys
 from Astar import *
 from strategies import *
+from jeu import *
 
 
 
@@ -120,15 +121,13 @@ def main():
     # bon ici on fait juste plusieurs random walker pour exemple...
     
     posPlayers = initStates
-    print("init state : ",initStates)
-    EtatInit = Etat(initStates[0])
-    EtatFinal = []
     print(fioles)
     for f in fioles:
         print(fioles[f])
     print("score",score)
     print(type(score))
-    jeu(posPlayers[0],game,fioles,wallStates, players[0],0,score)
+    #jeu(posPlayers[0],game,fioles,wallStates, players[0],0,score)
+    jeu_par_iteration(game, posPlayers, fioles, wallStates, players, score)
 
     
    # for i in range(iterations):

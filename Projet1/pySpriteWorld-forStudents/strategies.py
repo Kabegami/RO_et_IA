@@ -1,76 +1,53 @@
 # -*- coding: utf-8 -*-
 
 from Astar import *
+import random
 
-def jeu(Init, game, fioles,wallStates, player,numPlayer,score):
-    etat = Etat(Init)
-    fiolesPrises = dict()
+
+# -----------------------------------------------------------------------------------
+
+def choisit_couleur_pref(fioles):
+    """ Prend un dictionnaire de fiole en entrée et retourne un tuple avec les couleurs par ordre de préférance et 
+    un dictionnaire avec la récompense associé à chaque fioles """
+    color = ["r","j","b"]
+    random.shuffle(color)
+    dico = {}
     for f in fioles:
-        if f not in fiolesPrises:
-            goal = Etat(f)
-            print("etat, goal : {},{}".format(etat.position, f))
-            c =  Astar(etat,goal,wallStates,distance_Manhattan)
-            print(c)
-            etat = Etat(deplace(etat, c, game,player,numPlayer,fioles,score,fiolesPrises))
+        if fioles[f] == color[0]:            
+            dico[f] = 10
+        elif fioles[f] == color[1]:
+            dico[f] = 7
+        else:
+            dico[f] = 2
+    return (color, dico)
 
-def deplace(Init, chemin,game,player,numplayer,fioles,score,fiolesPrises):
-    """bug(voir le fichier bug)"""
-    for etat in chemin:
-        row = etat[0]
-        col = etat[1]
-        player.set_rowcol(row,col)
-        if (row, col) in fioles:
-            o = game.player.ramasse(game.layers)
-            fiolesPrises[(row,col)] = True
-            score[numplayer] += 1
-        game.mainiteration()
-    print("derniere case",chemin[-1])
-    return etat
 
-def trouve_meilleur_fiole(posJ,wallStates,ListeCouleurPref, fioleRamasser):
-    dbest = 1000000000
-    best = None
-    for Lc in ListeCouleurPref:
-        for fiole in Lc:
-            if fiole not in fioleRamasser:
-                d = len(Astar(posJ,Etat(fiole),wallStates, distance_Manhattan))
-                if d < dbest:
-                    dbest = d
-                    fbest = fiole
-    return (dbest, fbest)
-                
-    
+# -------------------------------------------------------------------------------------
+#                        ESPACE DEDIE AU STRATEGIE
+#-------------------------------------------------------------------------------------
 
-def strategie_naive(ListeCouleurPref, fioles, Init):
-    """->ListeCouleurPref est une liste contenant une liste de fioles par couleur pref L[0] meilleur, ...
-    ->fioles une liste contenant les fioles
-    -> Init la position initiale
-    
-    Idée de la strategie : Il cherche en priorité ses fioles préferer sans ce soucier du jeu de l'adversaire"""
-    fiolePrise = []
-    posJ = Init
-    while fioleRamasser != fioles:
-        f = trouve_meilleur_fiole(posJ,wallStates, ListeCouleurPref, fiolePrise)
-        c = Astar(posJ, etat(f), wallStates, distance_Manhattan)
-        deplace(posJ,f,c)
-        
+#remarque : les strategies retournes un tuple (row, col) correspondant au prochain coup a jouer
 
-def strategie_glouton(DicoValFioles, fioles, Init, wallState):
+
+def strategie_naive(dicoValFioles, positionJoueur, wallStates):
     """ Chaque fiole a une valeur : valFiole - distFiole et on prend la fiole avec la plus grande valeur. Ainsi notre algo va prendre les fioles a poximité avant d'aller vers celle loin
 -> DicoValFioles a comme clef les fioles et comme valeur la récompense associé a la fiole"""
-    posJ = etat(Init)
+    posJ = Etat(positionJoueur)
     dicoFiole = dict()
-    maxD = None
-    for f in DicoValFioles:
-        dicoFiole[f] = DicoValFioles[f] - len(Astar(posJ, Etat(f), wallStates, distance_Manhattan))
-        if minD == None:
+    maxVal = -1000000
+    maxf = None
+    for f in dicoValFioles:
+     #   print("f : {}".format(f))
+        goal = Etat(f)
+        distance = len(Astar(posJ,goal,wallStates,distance_Manhattan))
+        dicoFiole[f] = dicoValFioles[f] - distance
+        if dicoFiole[f] > maxVal:
+            maxVal = dicoFiole[f]
             maxf = f
-            maxD = dicoFiole[f]
-        if dicoFiole[f] > maxD:
-            maxf = f
-            maxD = dicoFiole[f]
-    return maxf
-        
+    #print("sortie du parcours des fioles de strategie_naive")
+    #print("maxf : {}".format(maxf))
+    chemin = Astar(posJ, Etat(maxf), wallStates, distance_Manhattan)
+    return chemin[0]
         
 
 
