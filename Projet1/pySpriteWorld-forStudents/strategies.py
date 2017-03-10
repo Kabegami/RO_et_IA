@@ -51,7 +51,7 @@ def strategie_naive(color,fioles, positionJoueur, wallStates):
     maxVal = -1000000
     maxf = None
     for f in dicoValFioles:
-     #   print("f : {}".format(f))
+        print("positionJoueur : {}, f : {}".format(positionJoueur,f))
         distance = len(Astar(positionJoueur,f,wallStates,distance_Manhattan))
         dicoFiole[f] = dicoValFioles[f] - distance
         if dicoFiole[f] > maxVal and distance != 0:

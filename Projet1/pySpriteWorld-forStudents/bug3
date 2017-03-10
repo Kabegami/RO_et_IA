@@ -1,0 +1,5 @@
+positionJoueur : (10, 10), f : (7, 5)
+Appel de A* pour aller de l'état (10, 10) à l'état (7, 5)
+bug etat n'est pas dans la reserve dans l'iteration numero : 0
+fils non trouvé !
+

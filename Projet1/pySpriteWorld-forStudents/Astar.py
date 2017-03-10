@@ -71,13 +71,31 @@ def retrouve_chemin(etat_final):
     chemin.reverse()
     return chemin
 
+def trouve_fils(pere, reserve):
+    for fils in reserve:
+        if reserve[fils] == pere:
+            return fils
+    print("fils non trouvé !")
+    return None
+
 def retrouve_chemin_reserve(final,reserve):
+    """ cycle : on a 2 cases qui sont a la fois pere et fils
+    probleme dans la premiere iteration, c'est a dire l'état final n'est pas dans la reserve"""
     etat = final
     chemin = []
-    while reserve[etat] is not None:
+    i = 0
+    while etat in reserve and reserve[etat] is not None and i< 30:
         chemin.append(etat)
         etat = reserve[etat]
-        print("retrouve_chemin_reserve", etat)
+        #print("retrouve_chemin_reserve", etat)
+        i += 1
+    if etat not in reserve:
+        #Dans ce cas on ajoute des peres qui ne font pas partit de la reserve
+        print("bug etat n'est pas dans la reserve dans l'iteration numero : {}".format(i))
+        print("pere : {}, fils : {}".format(etat,trouve_fils(etat,reserve)))
+       # print("reserve : {}".format(reserve))
+    if i >= 30:
+        print("bug boucle : reserve = {}".format(reserve))    
     chemin.reverse()
     return chemin
 
@@ -114,8 +132,9 @@ def Astar_bug(EtatInit, EtatFinal, wallStates, h):
         
 
 def Astar(init, final, wallStates, h):
-    """ Calcule la distance vis a vis de toutes les cases"""
+    """ Calcule la distance vis a vis de toutes les cases """
     #convertis en Etat
+    print("Appel de A* pour aller de l'état {} à l'état {}".format(init, final))
     EtatInit = Etat(init)
     L = []
     L.append(EtatInit)
@@ -123,13 +142,22 @@ def Astar(init, final, wallStates, h):
     frontiere.ajoute(L)
     reserve = {}
     bestEtat = EtatInit
-    while frontiere.TasF != [] and bestEtat.position != final:
+    while bestEtat.position != final and frontiere.TasF != []:
         bestEtat = frontiere.bestEtat()
-        if bestEtat.position not in reserve:
+        if bestEtat.position not in reserve and (bestEtat.pere in reserve or bestEtat.pere == None):
             #on ajoute a la reserve
             reserve[bestEtat.position] = bestEtat.pere
+            #toutes les nouvelles cases ont comme pere un membre de la reserve
             nouvelle_cases = exploreEtat(bestEtat, final, wallStates, h)
             frontiere.ajoute(nouvelle_cases)
+    #on ajoute l'état finale dans la reserve
+    reserve[bestEtat.position] = bestEtat.pere
+    #si on est sur la case final
+    if reserve == {}:
+        return []
+    #si on a pas trouvé de chemin
+    if frontiere.TasF == []:
+        print("Aucun chemin trouvé !")
+        return []
     chemin = retrouve_chemin_reserve(final, reserve)
     return chemin
-
