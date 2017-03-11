@@ -41,7 +41,7 @@ def Clustering(fioles,wallStates):
 #remarque : les strategies retournes un tuple (row, col) correspondant au prochain coup a jouer
 
 
-def strategie_naive(color,fioles, positionJoueur, wallStates):
+def strategie_bestValeurProche(color,fioles, positionJoueur, wallStates):
     """ Chaque fiole a une valeur : valFiole - distFiole et on prend la fiole avec la plus grande valeur. Ainsi notre algo va prendre les fioles a poximité avant d'aller vers celle loin
 -> DicoValFioles a comme clef les fioles et comme valeur la récompense associé a la fiole"""
     if fioles == {}:
@@ -51,17 +51,57 @@ def strategie_naive(color,fioles, positionJoueur, wallStates):
     maxVal = -1000000
     maxf = None
     for f in dicoValFioles:
-        print("positionJoueur : {}, f : {}".format(positionJoueur,f))
         distance = len(Astar(positionJoueur,f,wallStates,distance_Manhattan))
         dicoFiole[f] = dicoValFioles[f] - distance
         if dicoFiole[f] > maxVal and distance != 0:
             maxVal = dicoFiole[f]
             maxf = f
-    #print("sortie du parcours des fioles de strategie_naive")
-    #print("maxf : {}".format(maxf))
     chemin = Astar(positionJoueur, maxf, wallStates, distance_Manhattan)
-    #print("chemin : {}".format(chemin))
+    if chemin == []:
+        return positionJoueur
     return chemin[0]
 
+def strategie_naive(fioles, positionJoueur, wallStates):
+    """ Strategie naive qui consiste a maximiser le nombre de fioles ramassés en allant chercher la fiole la plus proche de sa position"""
+    maxd = 10000000
+    maxf = None
+    for f in fioles:
+        distance = len(Astar(positionJoueur, f, wallStates, distance_Manhattan))
+        if distance < maxd:
+            maxd = distance
+            maxf = f
+    chemin = Astar(positionJoueur, maxf, wallStates, distance_Manhattan)
+    #si le joueur est sur la fiole a ramasser
+    if chemin == []:
+        return positionJoueur
+    return chemin[0]
 
-
+def strategie_bestValeurProche_possible(color,fioles, positionJoueur, positionAdv, wallStates):
+    """Variante de la strategie bestValeurProche qui tient compte de l'adversaire et ne vas pas chercher une
+    fiole si l'adversaire est plus proche de cette fiole que lui
+    rq : marche mal"""
+    if fioles == {}:
+        return positionJoueur
+    dicoValFioles = FioleValue(color, fioles)
+    dicoFiole = dict()
+    maxVal_possible = -1000000
+    maxf_possible = None
+    maxVal_imp = -10000000
+    maxf_imp = None
+    for f in dicoValFioles:
+        distance = len(Astar(positionJoueur, f, wallStates, distance_Manhattan))
+        distance_adv = len(Astar(positionAdv, f, wallStates, distance_Manhattan))
+        dicoFiole[f] = dicoValFioles[f] - distance
+        if dicoFiole[f] > maxVal_possible and distance != 0 and (distance - distance_adv >= 0):
+            maxVal_possible = dicoFiole[f]
+            maxf_possible = f
+        if dicoFiole[f] > maxVal_imp and distance != 0 and (distance- distance_adv < 0):
+            maxVal_imp = dicoFiole[f]
+            maxf_imp = f
+    if maxf_possible is not None:
+        chemin = Astar(positionJoueur, maxf_possible, wallStates, distance_Manhattan)
+    else:
+        chemin = Astar(positionJoueur, maxf_imp, wallStates, distance_Manhattan)
+    if chemin == []:
+        return positionJoueur
+    return chemin[0]

@@ -130,7 +130,7 @@ def main():
     #print("reserve : {}".format(reserve))
     #jeu(posPlayers[0],game,fioles,wallStates, players[0],0,score)
     jeu_par_iteration(game, posPlayers, fioles, wallStates, players, score)
-
+    #statistique(game, posPlayers, fioles, wallStates, players, score, 10)
     
    # for i in range(iterations):
    #     

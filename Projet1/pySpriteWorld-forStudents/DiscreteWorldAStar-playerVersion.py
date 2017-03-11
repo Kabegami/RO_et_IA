@@ -16,6 +16,7 @@ import random
 import numpy as np
 import sys
 from Astar import *
+from Astar2 import *
 import heapq
 
 
@@ -87,7 +88,7 @@ def main():
     
     EtatInit = Etat(initStates[0])
     EtatFinal = Etat(goalStates[0])
-    chemin  = Astar(EtatInit, EtatFinal, wallStates, distance_Manhattan)
+    chemin  = Astar2(initStates[0], goalStates[0], wallStates, distance_Manhattan)
     print("Astar : ",chemin)
     
         
