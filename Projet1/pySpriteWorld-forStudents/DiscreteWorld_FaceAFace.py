@@ -130,7 +130,7 @@ def main():
     #reserve = Astar_v2(posPlayers[0], f, wallStates, distance_Manhattan)
     #print("reserve : {}".format(reserve))
     #jeu(posPlayers[0],game,fioles,wallStates, players[0],0,score)
-    jeu_par_iteration(game, posPlayers, fioles, wallStates, players, score)
+    jeu_par_iteration(game, posPlayers, fioles, wallStates, players, score,strategie_bestValeurProche, strategie_bestVal_proximite)
     #statistique(game, posPlayers, fioles, wallStates, players, score, 10)
     
    # for i in range(iterations):
@@ -170,7 +170,6 @@ def jeu(strategie1,strategie2):
     score = [0]*nbPlayers
     fioles = {} # dictionnaire (x,y)->couleur pour les fioles
     
-    
     # on localise tous les états initiaux (loc du joueur)
     initStates = [o.get_rowcol() for o in game.layers['joueur']]
     
@@ -207,8 +206,9 @@ def jeu(strategie1,strategie2):
 
         game.layers['ramassable'].add(o)
         game.mainiteration()
-        jeu_par_iteration(game,initStates, fioles, wallStates, players, score,strategie1,strategie2)
-        return score
+
+    jeu_par_iteration(game,initStates, fioles, wallStates, players, score , strategie1,strategie2)
+    return score
 
 if __name__ == '__main__':
     main()
