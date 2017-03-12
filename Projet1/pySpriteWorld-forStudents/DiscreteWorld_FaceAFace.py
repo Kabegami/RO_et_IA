@@ -50,7 +50,8 @@ def main():
     print (iterations)
 
     init()
-    
+
+
     
     
 
@@ -152,7 +153,62 @@ def main():
 
         
     
-   
+
+def jeu(strategie1,strategie2):
+    game = Game()
+    if len(sys.argv) == 2:
+        iterations = int(sys.argv[1])
+
+    init()
+
+    #-------------------------------
+    # Initialisation
+    #-------------------------------
+       
+    players = [o for o in game.layers['joueur']]
+    nbPlayers = len(players)
+    score = [0]*nbPlayers
+    fioles = {} # dictionnaire (x,y)->couleur pour les fioles
+    
+    
+    # on localise tous les états initiaux (loc du joueur)
+    initStates = [o.get_rowcol() for o in game.layers['joueur']]
+    
+    # on localise tous les murs
+    wallStates = [w.get_rowcol() for w in game.layers['obstacle']]
+    #print ("Wall states:", wallStates)
+
+        #-------------------------------
+    # Placement aleatoire des fioles de couleur 
+    #-------------------------------
+    
+    for o in game.layers['ramassable']: # on considère chaque fiole
+        
+        #on détermine la couleur
+    
+        if o.tileid == (19,0): # tileid donne la coordonnee dans la fiche de sprites
+            couleur = 'r'
+        elif o.tileid == (19,1):
+            couleur = 'j'
+        else:
+            couleur = 'b'
+
+        # et on met la fiole qqpart au hasard
+
+        x = random.randint(1,19)
+        y = random.randint(1,19)
+
+        while (x,y) in wallStates: # ... mais pas sur un mur
+            x = random.randint(1,19)
+            y = random.randint(1,19)
+        o.set_rowcol(x,y)
+        # on ajoute cette fiole 
+        fioles[(x,y)]=couleur
+
+        game.layers['ramassable'].add(o)
+        game.mainiteration()
+        jeu_par_iteration(game,initStates, fioles, wallStates, players, score,strategie1,strategie2)
+        return score
 
 if __name__ == '__main__':
     main()

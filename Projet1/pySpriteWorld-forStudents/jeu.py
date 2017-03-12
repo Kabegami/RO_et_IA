@@ -1,10 +1,24 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import absolute_import, print_function, unicode_literals
+from gameclass import Game,check_init_game_done
+from spritebuilder import SpriteBuilder
+from players import Player
+from sprite import MovingSprite
+from ontology import Ontology
+from itertools import chain
+import pygame
+import glo
+
+import random 
+import numpy as np
+import sys
 from Astar import *
 from strategies import *
+from jeu import *
+from DiscreteWorld_FaceAFace import *
 
-
-def jeu(Init, game, fioles, wallStates, player, numPlayer, score):
+def jeuXOXO(Init, game, fioles, wallStates, player, numPlayer, score):
     """ Souvant quand il y  a des téléportations c'est du a la derniere position d'un des chemin precedant
     Il y a la valeurs de certain etat qui ne se reinitialise pas"""
     etat = Init
@@ -32,7 +46,7 @@ def deplace(Init, chemin,game,player,numplayer,fioles,score,fiolesPrises):
     return etat
 
 
-def jeu_par_iteration(game, PositionJoueurs, fioles, wallStates, players, scores):
+def jeu_par_iteration(game, PositionJoueurs, fioles, wallStates, players, scores,strategie1,strategie2):
     # on tire les couleurs des joueurs aléatoirement
     couleur1 = choisit_couleur_pref(fioles)
     couleur2 = choisit_couleur_pref(fioles)
@@ -40,11 +54,13 @@ def jeu_par_iteration(game, PositionJoueurs, fioles, wallStates, players, scores
     print("La liste de préférence du second joueurs est : {}".format(couleur2))
     
     while fioles != {}:
+        #joueur 1 : fille, joueur 2 : garçon
         dico_pref1 = FioleValue(couleur1,fioles)
         dico_pref2 = FioleValue(couleur2,fioles)
         # on applique les strategies des joueurs
-        (row1, col1) = strategie_bestValeurProche(couleur1,dico_pref1, PositionJoueurs[0], wallStates)
-        (row2, col2) = strategie_bestValeurProche_possible(couleur2,fioles, PositionJoueurs[1], PositionJoueurs[0],wallStates)
+        (row1, col1) = strategie1(couleur1,fioles, PositionJoueurs,0, wallStates)
+        (row2, col2) = strategie2(couleur2,fioles, PositionJoueurs,1,wallStates)
+        #(row2, col2) = strategie_bestValeurProche_possible(couleur2,fioles, PositionJoueurs[1],PositionJoueurs[0],wallStates)
         #on bouge les joueurs
         players[0].set_rowcol(row1,col1)
         players[1].set_rowcol(row2,col2)
@@ -70,7 +86,7 @@ def jeu_par_iteration(game, PositionJoueurs, fioles, wallStates, players, scores
     print("Le score du joueur 2 est : {}".format(scores[1]))
     
     
-def statistique(game, PositionJoueurs, fioles, wallStates, players, scores, nbItterations):
+def statistique(strategie1, strategie2):
     with open("statistiques/stat1","w") as f:
         for i in range(nbItterations):
             jeu_par_iteration(game, PositionJoueurs, fioles, wallStates, players, scores)
@@ -80,3 +96,5 @@ def statistique(game, PositionJoueurs, fioles, wallStates, players, scores, nbIt
         f.write(chaine)
     
     
+if __name__ == "__main__":
+    jeu(strategie_bestValeurProche, strategie_bestVal_proximite)
