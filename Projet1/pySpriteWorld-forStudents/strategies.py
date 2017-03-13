@@ -243,12 +243,20 @@ def permutation(fiole,positionChemin, cheminJoueur,wallStates):
     return chemin
 
 #changement etat ?
-def strategie_Contre(color,fioles,positionJoueurs,numJoueur,wallStates):
+def strategie_contre(color,fioles,positionJoueurs,numJoueur,wallStates):
     #initialisation de l'algorithme
     dico_valeur_fiole = FioleValue(color, fioles)
     supposition_color_adv = color[::]
     Jchemin = calcule_chemin(color, fioles,positionJoueurs[numJoueur],wallStates)
     ADVchemin = calcule_chemin(supposition_color_adv, fioles,positionJoueurs[abs(1 - numJoueur)], wallStates)
+    prec = None
+    #tant que notre algorithme n'a pas convergé
+    while Jchemin != Advchemin:
+        prec = Jchemin
+        Jchemin = meilleur_permutation(Jchemin,Advchemin,fioles,dico_valeur_fiole,wallStates)
+    return Jchemin
+    
+def meilleur_permutation(Jchemin, ADVchemin, fioles, dico_valeur_fiole, wallStates):
     dico_gain = construit_dico_gain(color,Jchemin, ADVchemin,fioles,dico_valeur_fiole)
     gain = somme_gain(dico_gain)
     curseur = None
@@ -276,3 +284,5 @@ def strategie_Contre(color,fioles,positionJoueurs,numJoueur,wallStates):
         f,pos = curseur
         new_chemin = permutation(f,pos,Jchemin,wallStates)
         return new_chemin
+
+ 
