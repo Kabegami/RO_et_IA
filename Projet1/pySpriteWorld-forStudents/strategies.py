@@ -67,7 +67,6 @@ def construit_dico_proximite(fioles,wallStates):
 
 #remarque : les strategies retournes un tuple (row, col) correspondant au prochain coup a jouer
 
-
 def strategie_bestValeurProche(color,fioles, positionJoueurs,numJoueur, wallStates):
     """ Chaque fiole a une valeur : valFiole - distFiole et on prend la fiole avec la plus grande valeur. Ainsi notre algo va prendre les fioles a poximité avant d'aller vers celle loin
 -> DicoValFioles a comme clef les fioles et comme valeur la récompense associé a la fiole"""
@@ -136,7 +135,7 @@ def strategie_bestValeurProche_possible(color,fioles, positionJoueurs, numJoueur
     """Variante de la strategie bestValeurProche qui tient compte de l'adversaire et ne vas pas chercher une
     fiole si l'adversaire est plus proche de cette fiole que lui
     rq : marche mal"""
-    positionAdv = 1 - numJoueur
+    positionAdv = abs(1 - numJoueur)
     if fioles == {}:
         return positionJoueurs[numJoueur]
     dicoValFioles = FioleValue(color, fioles)
@@ -163,3 +162,117 @@ def strategie_bestValeurProche_possible(color,fioles, positionJoueurs, numJoueur
     if chemin == []:
         return positionJoueurs[numJoueur]
     return chemin[0]
+
+#------------------------------------------------------------------------------------
+#                     STRATEGIE CONTRE
+#------------------------------------------------------------------------------------
+
+def chemin_bestValeur_Proche(color,fioles,joueur, wallStates):
+    """ retourne le tuple avec la meilleur fiole et le chemin pour y aller"""
+    if fioles == {}:
+        return joueur
+    dicoValFioles = FioleValue(color, fioles)
+    dicoFiole = dict()
+    maxVal = -1000000
+    maxf = None
+    for f in dicoValFioles:
+        distance = len(Astar(joueur,f,wallStates,distance_Manhattan))
+        dicoFiole[f] = dicoValFioles[f] - distance
+        if dicoFiole[f] > maxVal and distance != 0:
+            maxVal = dicoFiole[f]
+            maxf = f
+    chemin = Astar(joueur, maxf, wallStates, distance_Manhattan)
+    if chemin == []:
+        return joueur
+    return (maxf,chemin)
+
+def calcule_chemin(color, fioles, posJoueur, wallStates):
+    """ retourne un chemin qui est [(fiole, distance)] avec la distance pour aller a la fiole depuis la derniere position"""
+    s = []
+    LFioles = fioles[::]
+    while LFioles != {}:
+        #Tant qu'il y a des fioles on prend la meilleur fiole possible
+        f,c = chemin_bestValeur_Proche(color, LFioles, posJoueur,wallStates)
+        posJoueur = f
+        del LFioles[f]
+        #si on a deja parcours une case
+        distance_precedant = 0
+        if s != []:
+            precedant = s[-1]
+            distance_precedant = precedant[1]
+        s.append(f, len(c) + distance_precedant)
+    return s
+
+def dist_fiole(chemin, fiole):
+    for etat in chemin:
+        if etat[0] == fiole:
+            return etat[1]
+    print("erreur fiole non présente")
+
+
+def construit_dico_gain(color,cheminJoueur,cheminAdv,fioles, dicoValFiole):
+    """ Prend 2 chemin et retourne le dictionnaire de gain de mon joueur"""
+    dico_gain = dict()
+    for f in fioles:
+        ma_dist = dist_fiole(cheminJoueur, f)
+        adv_dist = dist_fiole(cheminAdv, f)
+        if ma_dist - adv_dist >= 0:
+            dico_gain[f] = dicoValFiole[f]
+        else:
+            dico_gain[f] = -1*dicoValFiole[f]
+    return dico_gain
+
+def somme_gain(dico_gain):
+    somme = 0
+    for f in dico_gain:
+        somme += dico_gain[f]
+    return somme
+
+def permutation(fiole,positionChemin, cheminJoueur,wallStates):
+    LFioles = []
+    NouveauChemin = cheminJoueur[0:positionChemin]
+    changementChemin = cheminJoueur[positionChemin:]
+    for etat in changementChemin:
+            LFioles.append(etat[0])
+    derniere_case = NouveauChemin[-1]
+    #on ajoute la case a permuté dans notre chemin
+    NouveauChemin.append((fiole, len(Astar(derniere_case[0],fiole, wallStates, Distance_Manhattan))))
+    Suite = calcule_chemin(color,LFioles, fiole, wallStates)
+    #on concatene les chemins
+    chemin = NouveauChemin + Suite
+    return chemin
+
+#changement etat ?
+def strategie_Contre(color,fioles,positionJoueurs,numJoueur,wallStates):
+    #initialisation de l'algorithme
+    dico_valeur_fiole = FioleValue(color, fioles)
+    supposition_color_adv = color[::]
+    Jchemin = calcule_chemin(color, fioles,positionJoueurs[numJoueur],wallStates)
+    ADVchemin = calcule_chemin(supposition_color_adv, fioles,positionJoueurs[abs(1 - numJoueur)], wallStates)
+    dico_gain = construit_dico_gain(color,Jchemin, ADVchemin,fioles,dico_valeur_fiole)
+    gain = somme_gain(dico_gain)
+    curseur = None
+    #pour les permutations utiles:
+    for f in fioles:
+        for positionChemin in range(len(Jchemin)):
+            #distance de la position initial à  la fiole en passant par les positionChemin precedantes
+            distance = (Jchemin[0:positionChemin])[1] + len(Astar(Jchemin[0],f,wallStates,Distance_Manhattan))
+            #si on peux récupérer la fiole
+            if distance < dist_fiole(ADVchemin,f):
+                new = permutation(f,positionChemin,Jchemin,wallStates)
+                new_dico_g = construit_dico_gain(color, Jchemin, ADVcheminn,fioles, dico_valeur_fiole)
+                new_gain = somme_gain(new_dico_g)
+                new_curseur = (f,positionChemin)
+
+                #on verifie si cela améliore la recherche
+                if new_gain > gain:
+                    gain = new_gain
+                    curseur = new_curseur
+
+    #si il n'y a aucune amélioration
+    if curseur == None:
+        return Jchemin
+    else:
+        f,pos = curseur
+        new_chemin = permutation(f,pos,Jchemin,wallStates)
+        return new_chemin
