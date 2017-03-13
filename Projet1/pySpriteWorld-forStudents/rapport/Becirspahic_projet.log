@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2017.3.13)  13 MAR 2017 22:29
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2017.3.13)  13 MAR 2017 22:32
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1421,7 +1421,7 @@ my insertion and my current dilemma will both disappear.
 Here is how much of TeX's memory you used:
  18453 strings out of 493013
  328443 string characters out of 6139317
- 399461 words of memory out of 5000000
+ 399459 words of memory out of 5000000
  21596 multiletter control sequences out of 15000+600000
  62095 words of font info for 79 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
