@@ -130,13 +130,22 @@ def main():
     #reserve = Astar_v2(posPlayers[0], f, wallStates, distance_Manhattan)
     #print("reserve : {}".format(reserve))
     #jeu(posPlayers[0],game,fioles,wallStates, players[0],0,score)
+
+    # bestValeurProche VS strategie contre
     jeu_par_iteration_contre(game, posPlayers, fioles, wallStates, players, score,strategie_bestValeurProche)
     
+    # bestValeurProche VS naif
+    #jeu_par_iteration(game, posPlayers, fioles, wallStates, players, score, strategie_bestValeurProche,strategie_naive)
 
+    # bestValeurProche VS bestVale_proximité
+    #jeu_par_iteration(game, posPlayers, fioles, wallStates, players, score, strategie_bestValeurProche,strategie_bestVal_proximite)
 
    
     
 
+
+
+    
 def jeu(strategie1,strategie2):
     game = Game()
     if len(sys.argv) == 2:

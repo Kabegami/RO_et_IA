@@ -186,11 +186,28 @@ def chemin_bestValeur_Proche(color,dicoValFioles,joueur, wallStates):
         return (maxf,[joueur])
     return (maxf,chemin)
 
-def calcule_chemin(color, fioles, posJoueur, wallStates):
+def calcule_chemin(color, fioles, posJoueur, wallStates,distance):
     """ retourne un chemin qui est [(fiole, distance)] avec la distance pour aller a la fiole depuis la derniere position"""
     #print("Nouvel appel de calcule_cheminn valeurs de fioles intial : {}".format(fioles))
     s = []
     dico_fiole = copy.deepcopy(fioles)
+    distance_precedante = 0
+    #print("dico_fiole en dehors du while : {}".format(dico_fiole))
+    while dico_fiole != {}:
+        #Tant qu'il y a des fioles on prend la meilleur fiole possible
+        f,c = chemin_bestValeur_Proche(color, dico_fiole, posJoueur, wallStates)
+        posJoueur = f
+        del dico_fiole[f]
+        s.append((f, len(c) + distance_precedante))
+        distance_precedante += len(c)
+    return s
+
+def calcule_chemin_bug(color, fioles, posJoueur, wallStates,distance):
+    """ retourne un chemin qui est [(fiole, distance)] avec la distance pour aller a la fiole depuis la derniere position"""
+    #print("Nouvel appel de calcule_cheminn valeurs de fioles intial : {}".format(fioles))
+    s = []
+    dico_fiole = copy.deepcopy(fioles)
+    distance_precedant = distance
     #print("dico_fiole en dehors du while : {}".format(dico_fiole))
     while dico_fiole != {}:
         #Tant qu'il y a des fioles on prend la meilleur fiole possible
@@ -202,10 +219,6 @@ def calcule_chemin(color, fioles, posJoueur, wallStates):
         #print("Nouvelle valeur de LFioles : {}".format(dico_fiole))
         #print("test de boucle : {}".format(dico_fiole == {}))
         #si on a deja parcours une case
-        distance_precedant = 0
-        if s != []:
-            precedant = s[-1]
-            distance_precedant = precedant[1]
         s.append((f, len(c) + distance_precedant))
     return s
 
@@ -234,25 +247,30 @@ def somme_gain(dico_gain):
         somme += dico_gain[f]
     return somme
 
-def permutation(color,fiole,positionChemin, cheminJoueur,wallStates):
+def permutation(color,fiole,positionChemin, cheminJoueur,wallStates,positionJoueur):
     LFioles = {}
-    NouveauChemin = cheminJoueur[0:positionChemin]
-    changementChemin = cheminJoueur[positionChemin:]
-    for etat in changementChemin:
+    old = cheminJoueur[0:positionChemin]
+    new = cheminJoueur[positionChemin:]
+    #Pour les fioles qu'il faut recalculer
+    for etat in new:
         LFioles[etat[0]] = etat[1]
     #print("Lfiole : {}".format(LFioles))
     #print("NouveauChemin : {}".format(NouveauChemin))
     #print("changementChemin : {}".format(changementChemin))
     #si la position n'est pas la première case
-    if NouveauChemin != []:
-        derniere_case = NouveauChemin[-1]
+    if old != []:
+        derniere_case = old[-1][0]
+        dist_derniere_case = old[-1][1]
     else:
-        derniere_case = changementChemin[0]
+        derniere_case = positionJoueur
+        dist_derniere_case = 0
     #on ajoute la case a permuté dans notre chemin
-    NouveauChemin.append((fiole, len(Astar(derniere_case[0],fiole, wallStates, distance_Manhattan))))
-    Suite = calcule_chemin(color,LFioles, fiole, wallStates)
+    #on calcule la distance de la nouvelle fiole
+    distance = len(Astar(derniere_case,fiole, wallStates, distance_Manhattan)) + dist_derniere_case
+    old.append((fiole, distance))
+    Suite = calcule_chemin(color,LFioles, fiole, wallStates,distance)
     #on concatene les chemins
-    chemin = NouveauChemin + Suite
+    chemin = old + Suite
     return chemin
 
 #changement etat ?
@@ -260,8 +278,8 @@ def chemin_optimal(color,fioles,positionJoueurs,numJoueur,wallStates):
     #initialisation de l'algorithme
     dico_valeur_fiole = FioleValue(color, fioles)
     supposition_color_adv = color[::]
-    Jchemin = calcule_chemin(color, dico_valeur_fiole,positionJoueurs[numJoueur],wallStates)
-    ADVchemin = calcule_chemin(supposition_color_adv,dico_valeur_fiole,positionJoueurs[abs(1 - numJoueur)], wallStates)
+    Jchemin = calcule_chemin(color, dico_valeur_fiole,positionJoueurs[numJoueur],wallStates,0)
+    ADVchemin = calcule_chemin(supposition_color_adv,dico_valeur_fiole,positionJoueurs[abs(1 - numJoueur)], wallStates,0)
     print("le chemin de mon joueur est Jchemin : {}".format(Jchemin))
     print("le chemin de l'adversaire est ADVchemin : {}".format(ADVchemin))  
     prec = None
@@ -269,7 +287,7 @@ def chemin_optimal(color,fioles,positionJoueurs,numJoueur,wallStates):
     while Jchemin != prec:
         prec = Jchemin
         print("appel de meilleur_permutation !")
-        Jchemin = meilleur_permutation(Jchemin,ADVchemin, color,fioles,dico_valeur_fiole,wallStates)
+        Jchemin = meilleur_permutation(Jchemin,ADVchemin, color,fioles,dico_valeur_fiole,wallStates,positionJoueurs[numJoueur])
     return Jchemin
 
 def strategie_contre(color,fioles,positionJoueurs, numJoueur, wallStates,b,chemin):
@@ -277,16 +295,16 @@ def strategie_contre(color,fioles,positionJoueurs, numJoueur, wallStates,b,chemi
     if b == False:
         chemin = chemin_optimal(color,fioles,positionJoueurs,numJoueur,wallStates)
         print("Chemin optimal : {}".format(chemin))
-    deplacement = Astar(positionJoueurs[numJoueur],chemin[0][0],wallStates,distance_Manhattan)
     if chemin[0][0] == positionJoueurs[numJoueur]:
         del chemin[0]
+    deplacement = Astar(positionJoueurs[numJoueur],chemin[0][0],wallStates,distance_Manhattan)
     if deplacement != []:
         return (deplacement[0], True, chemin)
     else:
         return (positionJoueurs[numJoueur], True, chemin)
 
     
-def meilleur_permutation(Jchemin, ADVchemin, color, fioles, dico_valeur_fiole, wallStates):
+def meilleur_permutation(Jchemin, ADVchemin, color, fioles, dico_valeur_fiole, wallStates,positionJoueur):
     dico_gain = construit_dico_gain(color,Jchemin, ADVchemin,fioles,dico_valeur_fiole)
     gain = somme_gain(dico_gain)
     curseur = None
@@ -303,7 +321,7 @@ def meilleur_permutation(Jchemin, ADVchemin, color, fioles, dico_valeur_fiole, w
             #    distance = (Jchemin[0:positionChemin])[1] + len(Astar((Jchemin[0])[0],f,wallStates,distance_Manhattan))
             #si on peux récupérer la fiole
             #if distance < dist_fiole(ADVchemin,f):
-            new = permutation(color,f,positionChemin,Jchemin,wallStates)
+            new = permutation(color,f,positionChemin,Jchemin,wallStates,positionJoueur)
             new_dico_g = construit_dico_gain(color, Jchemin, ADVchemin, fioles, dico_valeur_fiole)
             new_gain = somme_gain(new_dico_g)
             new_curseur = (f,positionChemin)
@@ -315,6 +333,7 @@ def meilleur_permutation(Jchemin, ADVchemin, color, fioles, dico_valeur_fiole, w
 
     #si il n'y a aucune amélioration
     if curseur == None:
+        print("il n'y a pas eu de permutation")
         return Jchemin
     else:
         f,pos = curseur
