@@ -130,28 +130,11 @@ def main():
     #reserve = Astar_v2(posPlayers[0], f, wallStates, distance_Manhattan)
     #print("reserve : {}".format(reserve))
     #jeu(posPlayers[0],game,fioles,wallStates, players[0],0,score)
-    jeu_par_iteration(game, posPlayers, fioles, wallStates, players, score,strategie_bestValeurProche, strategie_bestVal_proximite)
-    #statistique(game, posPlayers, fioles, wallStates, players, score, 10)
+    jeu_par_iteration_contre(game, posPlayers, fioles, wallStates, players, score,strategie_bestValeurProche)
     
-   # for i in range(iterations):
-   #     
-   #     for j in range(nbPlayers): # on fait bouger chaque joueur séquentiellement
-   #         row,col = posPlayers[j]
-   #
-   #         x_inc,y_inc = random.choice([(0,1),(0,-1),(1,0),(-1,0)])
-   #         next_row = row+x_inc
-   #         next_col = col+y_inc
-   #         # and ((next_row,next_col) not in posPlayers)
-   #         if ((next_row,next_col) not in wallStates) and next_row>=0 and next_row<=19 and next_col>=0 and next_col<=19:
-   #             players[j].set_rowcol(next_row,next_col)
-   #             print ("pos :", j, next_row,next_col)
-   #             game.mainiteration()
-    
-   #             col=next_col
-   #             row=next_row
-   #             posPlayers[j]=(row,col)
 
-        
+
+   
     
 
 def jeu(strategie1,strategie2):

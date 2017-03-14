@@ -84,6 +84,51 @@ def jeu_par_iteration(game, PositionJoueurs, fioles, wallStates, players, scores
 
     print("Le score du joueur 1 est : {}".format(scores[0]))
     print("Le score du joueur 2 est : {}".format(scores[1]))
+
+def jeu_par_iteration_contre(game, PositionJoueurs, fioles, wallStates, players, scores,strategie1):
+    # on tire les couleurs des joueurs aléatoirement
+    couleur1 = choisit_couleur_pref(fioles)
+    couleur2 = choisit_couleur_pref(fioles)
+    print("La liste de préférences des couleurs du premier joueur est : {}".format(couleur1))
+    print("La liste de préférence du second joueurs est : {}".format(couleur2))
+    b = False
+    chemin = None
+
+    while fioles != {}:
+        #joueur 1 : fille, joueur 2 : garçon
+        dico_pref1 = FioleValue(couleur1,fioles)
+        dico_pref2 = FioleValue(couleur2,fioles)
+        # on applique les strategies des joueurs
+        (row1, col1) = strategie1(couleur1,fioles, PositionJoueurs,0, wallStates)
+        print(" b = ",b)
+        reponce = strategie_contre(couleur2,fioles, PositionJoueurs,1,wallStates,b,chemin)
+        (row2, col2) = reponce[0]
+        b = reponce[1]
+        chemin = reponce[2]
+        #(row2, col2) = strategie_bestValeurProche_possible(couleur2,fioles, PositionJoueurs[1],PositionJoueurs[0],wallStates)
+        #on bouge les joueurs
+        players[0].set_rowcol(row1,col1)
+        players[1].set_rowcol(row2,col2)
+
+        #on ramasse les fioles
+        if (row1,col1) in fioles:
+            o = players[0].ramasse(game.layers)
+            fioles.pop((row1,col1))
+            scores[0] += dico_pref1[(row1,col1)]
+
+        if (row2,col2) in fioles:
+            o = players[1].ramasse(game.layers)
+            fioles.pop((row2,col2))
+            scores[1] += dico_pref2[(row2,col2)]
+
+        #on actualise l'état du jeu
+        game.mainiteration()
+        #update de la position des joueurs
+        PositionJoueurs[0] = (row1, col1)
+        PositionJoueurs[1] = (row2, col2)
+
+    print("Le score du joueur 1 est : {}".format(scores[0]))
+    print("Le score du joueur 2 est : {}".format(scores[1]))
     
     
 def statistique(strategie1, strategie2):
