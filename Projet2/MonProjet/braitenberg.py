@@ -55,12 +55,14 @@ def love_players(p,sensors,maxSensorDistance, maxRotationSpeed):
                     p.rotate(1*maxRotationSpeed)
             else:
                 p.rotate(-1*maxRotationSpeed)
+                
 def hate_players(p,sensors,maxSensorDistance, maxRotationSpeed):
     senseur_info = sensors[p]
     distDroite = senseur_info[6].dist_from_border
     distGauche = senseur_info[2].dist_from_border
     droitePlayer = (senseur_info[6].layer == "joueur")
     gauchePlayer = (senseur_info[2].layer == "joueur")
+    print("droitePlayer :",droitePlayer)
     if distDroite > maxSensorDistance and distGauche > maxSensorDistance:
             #si il ne detecte rien on fait l'action par default (tout droit)
             p.forward(1)
@@ -88,15 +90,16 @@ def tout_droit(g):
         return True
     return False
     
-
 def evite(g):
     #si il est trop pres il fait une marche arriere
-    if g.distDroite < 0.1 and g.distGauche < 0.1:
+    if g.distDroite < 10 and g.distGauche < 10:
         return False
     if g.distDroite > g.distGauche:
         g.p.rotate(1*g.maxRotationSpeed)
+        g.p.forward(1)
     else:
         g.p.rotate(-1*g.maxRotationSpeed)
+        g.p.forward(1)
     return True
 
 def recule(g):

@@ -1,5 +1,7 @@
+# -*- coding: utf-8 -*-
+
 class gameDecorator(object):
-    def __init__(self,p, sensors, maxSensorDistance, maxRotationSpeed):
+    def __init__(self, p, sensors, maxSensorDistance, maxRotationSpeed):
         self.p = p
         self.sensors = sensors
         self.senseur_info = sensors[p]
@@ -24,7 +26,7 @@ class gameDecorator(object):
         return L
 
     def est_obstacle(self,senseur):
-        return self.senseur.layer == "joueur"
+        return self.senseur.layer != "joueur"
 
     
 
