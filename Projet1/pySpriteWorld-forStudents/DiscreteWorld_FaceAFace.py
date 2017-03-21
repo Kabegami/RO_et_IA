@@ -137,7 +137,7 @@ def main():
     # bestValeurProche VS naif
     #jeu_par_iteration(game, posPlayers, fioles, wallStates, players, score, strategie_bestValeurProche,strategie_naive)
 
-    # bestValeurProche VS bestVale_proximité
+    #bestValeurProche VS bestVale_proximité
     #jeu_par_iteration(game, posPlayers, fioles, wallStates, players, score, strategie_bestValeurProche,strategie_bestVal_proximite)
 
    
