@@ -7,6 +7,7 @@ class gameDecorator(object):
         self.senseur_info = sensors[p]
         self.distDroite = self.senseur_info[6].dist_from_border
         self.distGauche = self.senseur_info[2].dist_from_border
+        self.senseurAvant = self.senseur_info[1:7]
         self.maxSensorDistance = maxSensorDistance
         self.maxRotationSpeed = maxRotationSpeed
 
@@ -24,6 +25,13 @@ class gameDecorator(object):
             if senseur.dist_from_border < self.maxSensorDistance:
                 L.append(senseur)
         return L
+
+    def senseur_detecte_objet(self, senseur):
+        if senseur.dist_from_border > self.maxSensorDistance:
+            return True
+        return False
+
+    
 
     def est_obstacle(self,senseur):
         return self.senseur.layer != "joueur"
