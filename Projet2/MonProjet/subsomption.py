@@ -38,7 +38,8 @@ class Subsomption(object):
             return False
 
 class Action(object):
-    def __init__(self, deplacement, rotation, duree=1):
+    def __init__(self, deplacement, rotation, condition, duree=1):
+        """ deplacement : [-1,1], rotation : [-1,1], condition : fonction, duree : int """
         self.deplacement = deplacement
         self.rotation = rotation
         self.duree = duree
@@ -60,12 +61,10 @@ class Action(object):
         if self.duree != self.temps:
             return True
         return False
-
-        
-        
         
 class ArbreComportement(object):
     def __init__(self, typeNoeud, fg, fd):
         self.typeNoeud = typeNoeud
         self.fg = fg
         self.fd = fd
+

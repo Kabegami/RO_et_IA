@@ -113,6 +113,7 @@ class Agent(object):
         ListeAction = [tout_droit,evite,recule]
         s = Subsomption(p,sensors,maxSensorDistance,maxRotationSpeed,ListeAction)
         s.choisit_action()
+
         #hate_players(p,sensors,maxSensorDistance, maxRotationSpeed)
 
         #Exemple: comment récuperer le senseur #2
