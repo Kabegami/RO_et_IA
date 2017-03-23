@@ -110,8 +110,22 @@ class Agent(object):
         # Attention:
         #   ces fonctions *programment* la commande motrice, mais *ne l'exécute pas*
         #   la dernière valeur allouée exécutée. Chaque fonction doit donc être appelé une seule fois.
-        ListeAction = [tout_droit,evite,recule]
+        #ListeAction = [tout_droit,evite,recule]
+        #s = Subsomption(p,sensors,maxSensorDistance,maxRotationSpeed,ListeAction)
+
+        #on créer les actions
+        ListeAction = []
+        a_tout_droit = Action(1,0, c_tout_droit)
+        a_tourne_droite = Action(1,1,c_tourne_droite)
+        a_tourne_gauche = Action(1,-1,c_tourne_gauche)
+        a_defaut = Action(-1,0,par_defaut)
+        ListeAction.append(a_tout_droit)
+        ListeAction.append(a_tourne_droite)
+        ListeAction.append(a_tourne_gauche)
+        ListeAction.append(a_defaut)
+
         s = Subsomption(p,sensors,maxSensorDistance,maxRotationSpeed,ListeAction)
+        
         s.choisit_action()
 
         #hate_players(p,sensors,maxSensorDistance, maxRotationSpeed)

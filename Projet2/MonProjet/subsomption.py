@@ -10,10 +10,18 @@ class Subsomption(object):
         self.actionEnCours = []
 
     def choisit_action(self):
-        for action in self.ListeAction:
-            if action(self.g):
+        a = self.verif_running_action
+        #si il n'y a pas d'action en cours
+        if (a is None):
+            for action in self.ListeAction:
+                if action.condition(self.g):
+                    action.effectueAction(self.g.p)
+                    return True
+                return False
+            else:
+                a.effectueAction(self.g.p)
                 return True
-        return False
+                
 
     @property
     def verif_running_action(self):
@@ -42,13 +50,14 @@ class Action(object):
         """ deplacement : [-1,1], rotation : [-1,1], condition : fonction, duree : int """
         self.deplacement = deplacement
         self.rotation = rotation
+        self.condition = condition
         self.duree = duree
         self.temps = duree
 
     def effectueAction(self,p):
         """ renvoie True si la fonction est finis False sinon"""
         self.temps -= 1
-        p.rorate(self.rotation)
+        p.rotate(self.rotation)
         p.forward(self.deplacement)
         # si l'action est finis on réinitalise la durée et on prévient la fonction appellante
         if self.temps == 0:

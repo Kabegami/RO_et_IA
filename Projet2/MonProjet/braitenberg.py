@@ -103,6 +103,12 @@ def evite(g):
     return True
 
 # condition
+# les conditions dépendent toujours de g
+
+def c_tout_droit(g):
+    if not(g.detecte_objet_devant):
+        return True
+    return False
 
 def c_tourne_droite(g):
     if not(g.detecte_objet(g.senseurDevant[1])):
@@ -123,13 +129,10 @@ def c_tourne_gauche(g):
     if g.distGauche < 10:
         return False
     return True
-        
+
+def par_defaut(g):
+    return True
 
 def recule(g):
     g.p.forward(-1)
     return True
-
-# dans la condition on met toujours une fonction qui depend de G ( il faut changer tout droit et recule)
-a_tout_droit = Action(1,0, g.detecte_object_devant)
-a_tourne_droite = Action(1,1,c_tourne_droite
-a_recule = Action(-1,0,True,10)1
