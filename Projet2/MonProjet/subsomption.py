@@ -27,20 +27,20 @@ class Subsomption(object):
     def verif_running_action(self):
         for action in self.ListeAction:
             if action.runingAction:
-                return Action
+                return action
         return None
 
     def choisit_action2(self):
-        a = self.verif_running_action
-        if (a is not None):
-            if (a.effectueAction(self.g.p)):
-                self.actionEnCours.append(a)
+        if self.actionEnCours != []:
+            a = self.actionEnCours[0]
+            a.effectueAction(self.g.p)
             return True
         else:
             for action in self.ListeAction:
                 #to do 
                 if action.condition:
-                    if (action.effectueAction(self.g.p)):
+                    action.effectueAction(self.g.p)
+                    if action.runingAction:
                         self.actionEnCours.append(action)
                     return True
             return False

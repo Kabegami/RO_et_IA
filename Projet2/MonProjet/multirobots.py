@@ -126,7 +126,7 @@ class Agent(object):
 
         s = Subsomption(p,sensors,maxSensorDistance,maxRotationSpeed,ListeAction)
         
-        s.choisit_action()
+        s.choisit_action2()
 
         #hate_players(p,sensors,maxSensorDistance, maxRotationSpeed)
 
