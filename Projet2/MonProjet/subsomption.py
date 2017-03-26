@@ -4,25 +4,10 @@ from braitenberg import *
 from gameDecorator import *
 
 class Subsomption(object):
-    def __init__(self,p, sensors,maxSensorDistance, maxRotationSpeed,ListeAction):
-        self.g = gameDecorator(p, sensors,maxSensorDistance, maxRotationSpeed)
+    def __init__(self,ListeAction):
         self.ListeAction = ListeAction
         self.actionEnCours = []
-
-    def choisit_action(self):
-        a = self.verif_running_action
-        #si il n'y a pas d'action en cours
-        if (a is None):
-            for action in self.ListeAction:
-                if action.condition(self.g):
-                    action.effectueAction(self.g.p)
-                    return True
-                return False
-            else:
-                a.effectueAction(self.g.p)
-                return True
                 
-
     @property
     def verif_running_action(self):
         for action in self.ListeAction:
@@ -30,32 +15,43 @@ class Subsomption(object):
                 return action
         return None
 
-    def choisit_action2(self):
+    def choisit_action(self,p,sensors,maxSensorDistance, maxRotationSpeed):
+        self.g = gameDecorator(p, sensors,maxSensorDistance, maxRotationSpeed)
+        # si il y a une action en cours
         if self.actionEnCours != []:
+            print("il y a une action en cours")
             a = self.actionEnCours[0]
-            a.effectueAction(self.g.p)
+            a.effectueAction(self.g.p,True)
+            #si l'action est finis on la supprime de action en cours
+            if not(a.runingAction):
+                print("l'action est supprimé")
+                self.actionEnCours.remove(a)
             return True
         else:
             for action in self.ListeAction:
                 #to do 
-                if action.condition:
-                    action.effectueAction(self.g.p)
+                if action.condition(self.g):
+                    action.effectueAction(self.g.p, True)
                     if action.runingAction:
                         self.actionEnCours.append(action)
                     return True
             return False
 
 class Action(object):
-    def __init__(self, deplacement, rotation, condition, duree=1):
+    """ remarque : quand on veut faire reculer le robot, il faut qu'il fasse une suite de deplacement différents, ici ma structure ne me permet pas d'implementer cela, #todo"""
+    def __init__(self, nom,deplacement, rotation, condition, duree=1):
         """ deplacement : [-1,1], rotation : [-1,1], condition : fonction, duree : int """
+        self.nom = nom
         self.deplacement = deplacement
         self.rotation = rotation
         self.condition = condition
         self.duree = duree
         self.temps = duree
 
-    def effectueAction(self,p):
+    def effectueAction(self, p, v=False):
         """ renvoie True si la fonction est finis False sinon"""
+        if v:
+            print("L'action {} est effecuté".format(self.nom))
         self.temps -= 1
         p.rotate(self.rotation)
         p.forward(self.deplacement)

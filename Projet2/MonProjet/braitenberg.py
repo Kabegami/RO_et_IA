@@ -110,24 +110,25 @@ def c_tout_droit(g):
         return True
     return False
 
+def c_recule(g):
+    print("distance droite : {}, distance gauche {}".format(g.distDroite,g.distGauche))
+    if g.distDroite < 10 or g.distGauche < 10:
+        return True
+    return False
+
 def c_tourne_droite(g):
-    if not(g.detecte_objet(g.senseurDevant[1])):
+    if not(g.senseur_detecte_objet(g.senseurDevant[1])):
         return False
-    if g.distDroite > g.distGauche:
-        return False
-    # 10 est un epsilon fixé arbirtrairement pour voir quand on est collé à un obstacle
-    if g.distDroite < 10:
+    if g.distDroite < g.distGauche:
         return False
     return True
 
 def c_tourne_gauche(g):
-    if not(g.detecte_objet(g.senseurDevant[0])):
+    if not(g.senseur_detecte_objet(g.senseurDevant[0])):
         return False
-    if g.distDroite < g.distGauche:
+    if g.distDroite > g.distGauche:
         return False
     # 10 est un epsilon fixé arbirtrairement pour voir quand on est collé à un obstacle
-    if g.distGauche < 10:
-        return False
     return True
 
 def par_defaut(g):

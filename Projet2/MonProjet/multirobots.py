@@ -68,7 +68,7 @@ maxIterations = -1 # infinite: -1
 
 showSensors = True
 frameskip = 0   # 0: no-skip. >1: skip n-1 frames
-verbose = True
+verbose = False
 
 '''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''
@@ -81,13 +81,27 @@ class Agent(object):
     agentIdCounter = 0 # use as static
     id = -1
     robot = -1
-    name = "Equipe Alpha" # A modifier avec le nom de votre équipe
+    name = "Equipe " # A modifier avec le nom de votre équipe
 
     def __init__(self,robot):
         self.id = Agent.agentIdCounter
         Agent.agentIdCounter = Agent.agentIdCounter + 1
         #print "robot #", self.id, " -- init"
         self.robot = robot
+        #on créer les actions
+        p = robot
+        self.ListeAction = []
+        a_recule = Action("recule",-1,1, c_recule, 50)
+        a_tout_droit = Action("tout_droit",1,0, c_tout_droit)
+        a_tourne_droite = Action("tourne a droite", 1,1,c_tourne_droite)
+        a_tourne_gauche = Action("tourne a gauche", 1,-1,c_tourne_gauche)
+        a_defaut = Action("tout droit",1,0,par_defaut)
+        self.ListeAction.append(a_recule)
+        self.ListeAction.append(a_tourne_droite)
+        self.ListeAction.append(a_tourne_gauche)
+        self.ListeAction.append(a_defaut)
+        self.s = Subsomption(self.ListeAction)
+
 
     def getRobot(self):
         return self.robot
@@ -111,22 +125,8 @@ class Agent(object):
         #   ces fonctions *programment* la commande motrice, mais *ne l'exécute pas*
         #   la dernière valeur allouée exécutée. Chaque fonction doit donc être appelé une seule fois.
         #ListeAction = [tout_droit,evite,recule]
-        #s = Subsomption(p,sensors,maxSensorDistance,maxRotationSpeed,ListeAction)
 
-        #on créer les actions
-        ListeAction = []
-        a_tout_droit = Action(1,0, c_tout_droit)
-        a_tourne_droite = Action(1,1,c_tourne_droite)
-        a_tourne_gauche = Action(1,-1,c_tourne_gauche)
-        a_defaut = Action(-1,0,par_defaut)
-        ListeAction.append(a_tout_droit)
-        ListeAction.append(a_tourne_droite)
-        ListeAction.append(a_tourne_gauche)
-        ListeAction.append(a_defaut)
-
-        s = Subsomption(p,sensors,maxSensorDistance,maxRotationSpeed,ListeAction)
-        
-        s.choisit_action2()
+        self.s.choisit_action(p,sensors, maxSensorDistance, maxRotationSpeed)
 
         #hate_players(p,sensors,maxSensorDistance, maxRotationSpeed)
 

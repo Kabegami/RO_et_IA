@@ -10,9 +10,18 @@ class gameDecorator(object):
         self.gauche = self.senseur_info[0:4]
         self.droite = self.senseur_info[3:8]
         self.senseurAvant = self.senseur_info[2:6]
-        self.senseurArriere = self.senseur_info[0] + self.senseur_info[7]
-        self.senseurCote =self.senseur_info[1] + self.senseur_info[6]
-        self.senseurDevant = self.senseur_info[3] + self.senseur_info[4]
+        #senseur arriere
+        self.senseurArriere = []
+        self.senseurArriere.append(self.senseur_info[0])
+        self.senseurArriere.append(self.senseur_info[7])
+        #senseur latéraux
+        self.senseurCote = []
+        self.senseurCote.append(self.senseur_info[1])
+        self.senseurCote.append(self.senseur_info[6])
+        #senseur directement devant
+        self.senseurDevant = []
+        self.senseurDevant.append(self.senseur_info[3])
+        self.senseurDevant.append(self.senseur_info[4])
         self.maxSensorDistance = maxSensorDistance
         self.maxRotationSpeed = maxRotationSpeed
 
@@ -41,6 +50,7 @@ class gameDecorator(object):
         return L
 
     def senseur_detecte_objet(self, senseur):
+        #print("senseur : ",self.senseurDevant)
         if senseur.dist_from_border > self.maxSensorDistance:
             return True
         return False
