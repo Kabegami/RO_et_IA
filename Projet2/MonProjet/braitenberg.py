@@ -37,7 +37,8 @@ def hate_obstacle(p, sensors, maxSensorDistance, maxRotationSpeed):
 
 def love_players(p,sensors,maxSensorDistance, maxRotationSpeed):
     senseur_info = sensors[p]
-    distDroite = senseur_info[6].dist_from_border
+    distDroite = senseur_info[6].di
+    st_from_border
     distGauche = senseur_info[2].dist_from_border
     droitePlayer = (senseur_info[6].layer == "joueur")
     gauchePlayer = (senseur_info[2].layer == "joueur")
@@ -137,3 +138,6 @@ def par_defaut(g):
 def recule(g):
     g.p.forward(-1)
     return True
+
+
+    

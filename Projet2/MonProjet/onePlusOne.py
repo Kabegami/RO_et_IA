@@ -25,7 +25,7 @@
 # 
 
 from robosim import *
-from random import random, shuffle, randint,randrange
+from random import *
 import math
 import time
 import sys
@@ -76,12 +76,75 @@ verbose = True
 '''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''
 
+def onePlusOne(nbParam,sensor_info, sigma, epsilon):
+    #on génère x
+    x = []
+    for i in range(nbParam + 2):
+        r = randrange(-10,10)    
+        x.append(r)
+    while sigma > epsilon:
+        xPrime = []
+        for i in range(nbParam + 2):
+            r = x[i] + gauss(0,1)*sigma
+            xPrime.append(r)
+            if f_objectif(xPrime,sensor_info) > f_objectif(x,sensor_info):
+                xPrime = x
+                sigma = 2*sigma
+            else:
+                sigma = (2**(-1/4.0))*sigma
+    #print("xPrime : {}".format(xPrime))
+    return xPrime
+
+
 
 def normalise(valeur, mini , maxi):
     if maxi == mini:
         return 0
     n = (valeur - mini) / ((maxi - mini)*1.0)
     return n
+
+def f_objectif(x,sensor_info):
+        vt = 0
+        vr = 0
+        #on parcours les senseurs forward
+        minSensorDist = 100000000000000
+        maxSensorDist = 0
+        minSensorAngle = 10000000000000
+        maxSensorAngle = -170
+        mini = 1000000000000000000
+        for s in sensor_info:
+            minSensorAngle = min(minSensorAngle, s.rel_angle_degree)
+            maxSensorAngle = max(maxSensorAngle, s.rel_angle_degree)
+            distance = min(maxSensorDistance, s.dist_from_border)
+            mini = min(mini, distance)
+        #si notre est ne bouge pas , on met sa vitesse de translation a 0
+        else:
+            for id_p in range(len(x)/2-1):
+                for s in sensor_info:
+                    #print("param : {}".format(x[id_p]))
+                    #print(type(x[id_p]))
+                    distance = min(maxSensorDistance, s.dist_from_border)
+                    si = normalise(distance,0, maxSensorDistance)
+                    vt += x[id_p]*(si)
+        #on rajoute le biais
+        vt += x[len(x)/2-1]
+        vt = math.tanh(vt)
+        #on parcours les senseurs rotate
+        for id_p in range(len(x)/2+1, len(x)-1):
+            for s in sensor_info:
+                si = normalise(s.rel_angle_degree, minSensorAngle, maxSensorAngle)
+                vr += x[id_p]*(si)
+        #on rajoute le biais
+        vr += x[len(x)-1]
+        vr = math.tanh(vr)
+        #on calcule le senseur minimal
+        #min sensor distance est sense être compris entre -1 et 1
+
+        mini = normalise(mini,0,maxSensorDistance)
+        #print("minSensorDist : {}".format(mini))
+       # print("vt : {}, vr : {}, minSensorDist : {}".format(vt,vr,minSensorDist))
+        return (abs(vt)*abs((1-vr))*mini)
+
 
 class Agent(object):
     
@@ -118,7 +181,9 @@ class Agent(object):
         
         #self.stepSearchMethod()
         #self.params = [0, 0, 1, 1, 1, 0, 1, 1, 1, -1, -1, -1, 0, -1, 0, 1, -1, 0]
-        self.params = [-1, -1, -1, -1, -1, 0, 0, -1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0]
+        #self.params = [-1, -1, -1, -1, -1, 0, 0, -1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0]
+        nbParameter = len(SensorBelt)*2+2
+        self.params = onePlusOne(nbParameter,sensors[self.robot],10**(-2),10**(-5))
         self.stepController()
 
 
@@ -162,7 +227,7 @@ class Agent(object):
 
     def stepController(self):
 
-        self.updateFitness()
+        #self.updateFitness()
 
         #print "robot #", self.id, " -- step"
         p = self.robot
@@ -199,50 +264,7 @@ class Agent(object):
     def resetFitness(self):
         self.fitness = 0
         
-    def updateFitness(self):
-        g = gameDecorator(self.robot, sensors, maxSensorDistance, maxRotationSpeed)
-        currentPos = self.robot.get_centroid()
-        sensor_info = sensors[self.robot]
-        #sensor_actif = g.senseur_actif
-        vt = 0
-        vr = 0
-        #on parcours les senseurs forward
-        minSensorDist = 100000000000000
-        maxSensorDist = 0
-        minSensorAngle = 10000000000000
-        maxSensorAngle = -170
-        mini = 1000000000000000000
-        for s in sensor_info:
-            #print(s)
-            minSensorAngle = min(minSensorAngle, s.rel_angle_degree)
-            maxSensorAngle = max(maxSensorAngle, s.rel_angle_degree)
-            distance = min(maxSensorDistance, s.dist_from_border)
-            mini = min(mini, distance)
-        #si notre est ne bouge pas , on met sa vitesse de translation a 0
-        if self.oldPos == currentPos:
-            vt = 0
-        else:
-            for id_p in range(len(self.params)/2):
-                for s in sensor_info:
-                    #print("param : {}".format(self.params[id_p]))
-                    #print(type(self.params[id_p]))
-                    distance = min(maxSensorDistance, s.dist_from_border)
-                    si = normalise(distance,0, maxSensorDistance)
-                    vt += self.params[id_p]*(si)
-        #on parcours les senseurs rotate
-        for id_p in range(len(self.params)/2, len(self.params)):
-            for s in sensor_info:
-                si = normalise(s.rel_angle_degree, minSensorAngle, maxSensorAngle)
-                vr += self.params[id_p]*(si)
-        #on calcule le senseur minimal
-        #min sensor distance est sense être compris entre -1 et 1
 
-        mini = normalise(mini,0,maxSensorDistance)
-        #print("minSensorDist : {}".format(mini))
-       # print("vt : {}, vr : {}, minSensorDist : {}".format(vt,vr,minSensorDist))
-        self.fitness += (abs(vt)*abs((1-vr))*mini)
-        self.oldPos = self.robot.get_centroid()
-        
             
         
         #self.fitness += math.sqrt(abs(currentPos[0]**2-(screen_width/2)**2)) + math.sqrt(abs(currentPos[1]**2-(screen_height/2)**2))
@@ -363,4 +385,3 @@ while iteration != maxIterations:
     stepWorld()
     game.mainiteration()
     iteration = iteration + 1
-
