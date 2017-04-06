@@ -3,17 +3,17 @@
 #
 # multirobot.py
 # Contact (ce fichier uniquement): nicolas.bredeche(at)upmc.fr
-# 
+#
 # Description:
-#   Template pour robotique evolutionniste simple 
+#   Template pour robotique evolutionniste simple
 #   Ce code utilise pySpriteWorld, développé par Yann Chevaleyre (U. Paris 13)
-# 
+#
 # Dépendances:
 #   Python 2.x
 #   Matplotlib
 #   Pygame
-# 
-# Historique: 
+#
+# Historique:
 #   2016-03-28__23:23 - template pour 3i025 (IA&RO, UPMC, licence info)
 #
 # Aide: code utile
@@ -22,7 +22,7 @@
 #   - La fonction setupAgents (permet de placer les robots au début de la simulation)
 #   - La fonction setupArena (permet de placer des obstacles au début de la simulation)
 #   - il n'est pas conseillé de modifier les autres parties du code.
-# 
+#
 
 from robosim import *
 from random import *
@@ -41,7 +41,7 @@ from gameDecorator import *
 '''''''''''''''''''''''''''''
 
 #game.setMaxTranslationSpeed(3) # entre -3 et 3
-# size of arena: 
+# size of arena:
 #   screenw,screenh = taille_terrain()
 #   OU: screen_width,screen_height
 
@@ -54,7 +54,7 @@ from gameDecorator import *
 game = Game()
 
 agents = []
-screen_width=512 #512,768,... -- multiples de 32  
+screen_width=512 #512,768,... -- multiples de 32
 screen_height=512 #512,768,... -- multiples de 32
 nbAgents = 1
 
@@ -76,25 +76,39 @@ verbose = True
 '''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''
 
-def onePlusOne(nbParam,sensor_info, sigma, epsilon):
+
+def onePlusOne(x,sensor_info, sigma, epsilon):
     #on génère x
-    x = []
-    for i in range(nbParam + 2):
-        r = randrange(-10,10)    
-        x.append(r)
     while sigma > epsilon:
         xPrime = []
-        for i in range(nbParam + 2):
+        for i in range(len(x)):
             r = x[i] + gauss(0,1)*sigma
             xPrime.append(r)
             if f_objectif(xPrime,sensor_info) > f_objectif(x,sensor_info):
-                xPrime = x
+                x = xPrime
                 sigma = 2*sigma
             else:
                 sigma = (2**(-1/4.0))*sigma
     #print("xPrime : {}".format(xPrime))
-    return xPrime
+    return x
 
+def onePlusOne_sigmaFixe(x,sensor_info, sigma):
+    #on génère x
+    cpt = 0
+    while cpt < 50:
+        xPrime = []
+        for i in range(len(x)):
+            #print(i, len(x))
+            r = x[i] + gauss(0,1)*sigma
+            xPrime.append(r)
+        if f_objectif(xPrime,sensor_info) > f_objectif(x,sensor_info):
+            x = xPrime
+                #sigma = 2*sigma
+            #else:
+             #   sigma = (2**(-1/4.0))*sigma
+        cpt += 1
+    #print("xPrime : {}".format(xPrime))
+    return x
 
 
 def normalise(valeur, mini , maxi):
@@ -147,14 +161,14 @@ def f_objectif(x,sensor_info):
 
 
 class Agent(object):
-    
+
     agentIdCounter = 0 # use as static
     id = -1
     robot = -1
     name = "Equipe Evol" # A modifier avec le nom de votre équipe
     params = []
     fitness = bestFitness = 0
-    
+
     def __init__(self,robot):
         self.id = Agent.agentIdCounter
         Agent.agentIdCounter = Agent.agentIdCounter + 1
@@ -162,6 +176,21 @@ class Agent(object):
         self.robot = robot
         self.bestParam = []
         self.oldPos = None
+        self.params = []
+        #Penser a gérer les biais
+        self.nbParam = len(SensorBelt)*2+2
+        #on génère x
+        for i in range(self.nbParam):
+            r = randrange(-10,10)
+            self.params.append(r)
+
+    def genere_params(self):
+        self.params = []
+        self.nbParam = len(SensorBelt)*2+2
+        #on génère x
+        for i in range(self.nbParam):
+            r = randrange(-10,10)
+            self.params.append(r)
 
     def getRobot(self):
         return self.robot
@@ -171,19 +200,21 @@ class Agent(object):
 
     def affiche_meilleur_resultat(self):
         print("meilleur resultat : {}".format(self.bestParam[-1]))
-    
+
 
     # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     def step(self):
-        
-        #self.stepSearchMethod()
-        #self.params = [0, 0, 1, 1, 1, 0, 1, 1, 1, -1, -1, -1, 0, -1, 0, 1, -1, 0]
-        #self.params = [-1, -1, -1, -1, -1, 0, 0, -1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0]
-        nbParameter = len(SensorBelt)*2+2
-        self.params = onePlusOne(nbParameter,sensors[self.robot],10**(-2),10**(-5))
+
+        self.stepSearchMethod()
+        #print(self.params)
+        #Penser a rajouter le biais apres
+        #self.params = onePlusOne(self.params,sensors[self.robot],10**(-3),10**(-7))
+        self.params = onePlusOne_sigmaFixe(self.params, sensors[self.robot], 10**(-1))
+        #print(self.params)
+        self.updateFitness()
         self.stepController()
 
 
@@ -205,21 +236,11 @@ class Agent(object):
             p = self.robot
             x = screen_width/2
             y = screen_height/2
-            rx = randrange(-30,30)
-            ry = randrange(-30,30)
+            rx = randrange(-10,10)
+            ry = randrange(-10,10)
             p.set_position(x+rx,y+ry)
             p.oriente( 0 )
-            
-            # genere un nouveau jeu de paramètres
-            self.params = []
-            for i in range(len(SensorBelt)*2+2):
-                choix = randint(0,3)
-                if choix == 0:
-                    self.params.append(-1)
-                elif choix == 1:
-                    self.params.append(+1)
-                else:
-                    self.params.append(0)
+            self.genere_params()
 
             # remet la fitness à zéro
             self.resetFitness()
@@ -232,17 +253,18 @@ class Agent(object):
         #print "robot #", self.id, " -- step"
         p = self.robot
         sensor_infos = sensors[p]
-        
+
         translation = 0
         rotation = 0
 
         k = 0
-        
+
         for i in range(len(SensorBelt)):
             dist = sensor_infos[i].dist_from_border/maxSensorDistance
+            #print("k : {}".format(k))
             translation += dist * self.params[k]
             k = k + 1
-        
+
         translation += 1 * self.params[k]
         k = k + 1
 
@@ -253,7 +275,7 @@ class Agent(object):
 
         rotation += 1 * self.params[k]
         k = k + 1
-        
+
         #print "r =",rotation," - t =",translation
 
         self.setRotationValue( min(max(rotation,-1),1) )
@@ -263,12 +285,17 @@ class Agent(object):
 
     def resetFitness(self):
         self.fitness = 0
-        
 
-            
-        
+    def updateFitness(self):
+        p = self.robot
+        sensor_info = sensors[p]
+        self.fitness += f_objectif(self.params, sensor_info)
+        return self.fitness
+
+
+
         #self.fitness += math.sqrt(abs(currentPos[0]**2-(screen_width/2)**2)) + math.sqrt(abs(currentPos[1]**2-(screen_height/2)**2))
-    
+
     # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=

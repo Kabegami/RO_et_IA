@@ -3,17 +3,17 @@
 #
 # multirobot.py
 # Contact (ce fichier uniquement): nicolas.bredeche(at)upmc.fr
-# 
+#
 # Description:
-#   Template pour robotique evolutionniste simple 
+#   Template pour robotique evolutionniste simple
 #   Ce code utilise pySpriteWorld, développé par Yann Chevaleyre (U. Paris 13)
-# 
+#
 # Dépendances:
 #   Python 2.x
 #   Matplotlib
 #   Pygame
-# 
-# Historique: 
+#
+# Historique:
 #   2016-03-28__23:23 - template pour 3i025 (IA&RO, UPMC, licence info)
 #
 # Aide: code utile
@@ -22,7 +22,7 @@
 #   - La fonction setupAgents (permet de placer les robots au début de la simulation)
 #   - La fonction setupArena (permet de placer des obstacles au début de la simulation)
 #   - il n'est pas conseillé de modifier les autres parties du code.
-# 
+#
 
 from robosim import *
 from random import random, shuffle, randint,randrange
@@ -41,7 +41,7 @@ from gameDecorator import *
 '''''''''''''''''''''''''''''
 
 #game.setMaxTranslationSpeed(3) # entre -3 et 3
-# size of arena: 
+# size of arena:
 #   screenw,screenh = taille_terrain()
 #   OU: screen_width,screen_height
 
@@ -54,7 +54,7 @@ from gameDecorator import *
 game = Game()
 
 agents = []
-screen_width=512 #512,768,... -- multiples de 32  
+screen_width=512 #512,768,... -- multiples de 32
 screen_height=512 #512,768,... -- multiples de 32
 nbAgents = 1
 
@@ -84,14 +84,14 @@ def normalise(valeur, mini , maxi):
     return n
 
 class Agent(object):
-    
+
     agentIdCounter = 0 # use as static
     id = -1
     robot = -1
     name = "Equipe Evol" # A modifier avec le nom de votre équipe
     params = []
     fitness = bestFitness = 0
-    
+
     def __init__(self,robot):
         self.id = Agent.agentIdCounter
         Agent.agentIdCounter = Agent.agentIdCounter + 1
@@ -108,14 +108,14 @@ class Agent(object):
 
     def affiche_meilleur_resultat(self):
         print("meilleur resultat : {}".format(self.bestParam[-1]))
-    
+
 
     # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
     def step(self):
-        
+
         #self.stepSearchMethod()
         #self.params = [0, 0, 1, 1, 1, 0, 1, 1, 1, -1, -1, -1, 0, -1, 0, 1, -1, 0]
         self.params = [-1, -1, -1, -1, -1, 0, 0, -1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0]
@@ -144,7 +144,7 @@ class Agent(object):
             ry = randrange(-30,30)
             p.set_position(x+rx,y+ry)
             p.oriente( 0 )
-            
+
             # genere un nouveau jeu de paramètres
             self.params = []
             for i in range(len(SensorBelt)*2+2):
@@ -167,17 +167,17 @@ class Agent(object):
         #print "robot #", self.id, " -- step"
         p = self.robot
         sensor_infos = sensors[p]
-        
+
         translation = 0
         rotation = 0
 
         k = 0
-        
+
         for i in range(len(SensorBelt)):
             dist = sensor_infos[i].dist_from_border/maxSensorDistance
             translation += dist * self.params[k]
             k = k + 1
-        
+
         translation += 1 * self.params[k]
         k = k + 1
 
@@ -188,7 +188,7 @@ class Agent(object):
 
         rotation += 1 * self.params[k]
         k = k + 1
-        
+
         #print "r =",rotation," - t =",translation
 
         self.setRotationValue( min(max(rotation,-1),1) )
@@ -198,7 +198,7 @@ class Agent(object):
 
     def resetFitness(self):
         self.fitness = 0
-        
+
     def updateFitness(self):
         g = gameDecorator(self.robot, sensors, maxSensorDistance, maxRotationSpeed)
         currentPos = self.robot.get_centroid()
@@ -242,11 +242,11 @@ class Agent(object):
        # print("vt : {}, vr : {}, minSensorDist : {}".format(vt,vr,minSensorDist))
         self.fitness += (abs(vt)*abs((1-vr))*mini)
         self.oldPos = self.robot.get_centroid()
-        
-            
-        
+
+
+
         #self.fitness += math.sqrt(abs(currentPos[0]**2-(screen_width/2)**2)) + math.sqrt(abs(currentPos[1]**2-(screen_height/2)**2))
-    
+
     # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
