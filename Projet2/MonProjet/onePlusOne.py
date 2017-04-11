@@ -64,7 +64,7 @@ maxTranslationSpeed = 3
 SensorBelt = [-170,-80,-40,-20,+20,40,80,+170]  # angles en degres des senseurs
 
 #On reset tout les 200 itérations donc il faut mettre un multiple de 200. ici on a 60 000 = 200 * 300
-maxIterations = 600000 # infinite: -1
+maxIterations = 60000 # infinite: -1
 
 showSensors = True
 frameskip = 200   # 0: no-skip. >1: skip n-1 frames
@@ -75,6 +75,16 @@ verbose = True
 '''  Classe Agent/Robot   '''
 '''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''
+
+def mutation_gaussienne(x,sigma=1):
+    fils = []
+    for gene in x:
+        r = gene + gauss(0,1)*sigma
+        #on verifie que r n'explose pas
+        while r < -10 or r > 10:
+            r = gene + gauss(0,1)*sigma
+        fils.append(r)
+    return fils
 
 
 def onePlusOne(x,sensor_info, sigma, epsilon):
@@ -95,13 +105,21 @@ def onePlusOne(x,sensor_info, sigma, epsilon):
 def onePlusOne_sigmaFixe(x,sensor_info, sigma):
     #on génère x
     cpt = 0
-    while cpt < 50:
+    while cpt < 25:
         xPrime = []
         for i in range(len(x)):
-            #print(i, len(x))
+            #N(mu,sigma) = mu + sigma*N(0,1)
+            #N(o,I) = 0 + sigma*N(0,I)
             r = x[i] + gauss(0,1)*sigma
+
+            #print("valeur de r : ", r)
             xPrime.append(r)
-        if f_objectif(xPrime,sensor_info) > f_objectif(x,sensor_info):
+        v1 = f_objectif(xPrime, sensor_info)
+        v2 = f_objectif(x, sensor_info)
+        #print("x prime : {}".format(v1))
+        #print("x : {}".format(v2))
+        if fonction_obj(xPrime, sensor_info) >= fonction_obj(x, sensor_info):
+            #print("x prime est meilleur que x ", xPrime)
             x = xPrime
                 #sigma = 2*sigma
             #else:
@@ -132,32 +150,76 @@ def f_objectif(x,sensor_info):
             distance = min(maxSensorDistance, s.dist_from_border)
             mini = min(mini, distance)
         #si notre est ne bouge pas , on met sa vitesse de translation a 0
-        else:
-            for id_p in range(len(x)/2-1):
-                for s in sensor_info:
-                    #print("param : {}".format(x[id_p]))
-                    #print(type(x[id_p]))
-                    distance = min(maxSensorDistance, s.dist_from_border)
-                    si = normalise(distance,0, maxSensorDistance)
-                    vt += x[id_p]*(si)
-        #on rajoute le biais
-        vt += x[len(x)/2-1]
+        #on ajoute le premier biais
+        vt += x[0]
+        for id_p in range(len(x)/2):
+            for s in sensor_info:
+                #print("param : {}".format(x[id_p]))
+                #print(type(x[id_p]))
+                distance = min(maxSensorDistance, s.dist_from_border)
+                si = normalise(distance,0, maxSensorDistance)
+                #x = vecteur de poids, si = neurone d'activation entre 0 et 1
+                vt += x[id_p]*(si)
         vt = math.tanh(vt)
+
+        #on rajoute le deuxième biais (dans le cas d'un biais le neurone vaut toujours 1)
+        vr += x[len(x)/2]
         #on parcours les senseurs rotate
-        for id_p in range(len(x)/2+1, len(x)-1):
+        for id_p in range(len(x)/2+1, len(x)):
             for s in sensor_info:
                 si = normalise(s.rel_angle_degree, minSensorAngle, maxSensorAngle)
                 vr += x[id_p]*(si)
-        #on rajoute le biais
-        vr += x[len(x)-1]
+
         vr = math.tanh(vr)
         #on calcule le senseur minimal
         #min sensor distance est sense être compris entre -1 et 1
 
         mini = normalise(mini,0,maxSensorDistance)
+        #print("mini : ",mini)
         #print("minSensorDist : {}".format(mini))
        # print("vt : {}, vr : {}, minSensorDist : {}".format(vt,vr,minSensorDist))
         return (abs(vt)*abs((1-vr))*mini)
+
+def fonction_obj(params, sensor_info):
+    #print(params)
+    vt = 0
+    vr = 0
+    minSensorValue = float("inf")
+    max_distance = -1 * float("inf")
+    for sensor in sensor_info:
+        distance = min(maxSensorDistance, sensor.dist_from_border)
+        max_distance = max(max_distance, sensor.dist_from_border)
+        minSensorValue = min(minSensorValue,distance)
+
+    #premier biais
+    vt += params[0]
+    index_senseur = 0
+    for i in range(1,len(params)/2):
+        distance = min(maxSensorDistance, (sensor_info[index_senseur]).dist_from_border)
+        #la distance est entre [0,maxSensorDistance] donc on normalise
+        si = distance / (1.0 * max_distance)
+        vt += si * params[i]
+        index_senseur += 1
+
+    #deuxieme biais
+    vr += params[len(params)/2]
+    #on reparcours les senseur pour les angles
+    index_senseur = 0
+    for i in range(len(params)/2 + 1, len(params)):
+        #si = (sensor_info[index_senseur].rel_angle_degree + 170) / ((170 + 170)*1.0)
+        si = min(maxSensorDistance, (sensor_info[index_senseur]).dist_from_border)
+        si = distance / (1.0 * max_distance)
+        vr += si*params[i]
+        index_senseur += 1
+
+    #on applique les fonction
+    vr = math.tanh(vr)
+    vt = math.tanh(vt)
+    return (abs(vt)*abs(1-vr)*minSensorValue)
+
+
+
+
 
 
 class Agent(object):
@@ -174,9 +236,11 @@ class Agent(object):
         Agent.agentIdCounter = Agent.agentIdCounter + 1
         #print "robot #", self.id, " -- init"
         self.robot = robot
-        self.bestParam = []
         self.oldPos = None
+        self.sigma = 10**(-1)
         self.params = []
+        self.best_params = None
+        self.best_fitness = -1*float("inf")
         #Penser a gérer les biais
         self.nbParam = len(SensorBelt)*2+2
         #on génère x
@@ -186,7 +250,6 @@ class Agent(object):
 
     def genere_params(self):
         self.params = []
-        self.nbParam = len(SensorBelt)*2+2
         #on génère x
         for i in range(self.nbParam):
             r = randrange(-10,10)
@@ -199,7 +262,7 @@ class Agent(object):
         pickle.dump(self.bestParam[-1],file("test.pickle","w"))
 
     def affiche_meilleur_resultat(self):
-        print("meilleur resultat : {}".format(self.bestParam[-1]))
+        print("meilleur resultat : {}".format(self.best_params))
 
 
     # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
@@ -209,26 +272,27 @@ class Agent(object):
     def step(self):
 
         self.stepSearchMethod()
-        #print(self.params)
-        #Penser a rajouter le biais apres
-        #self.params = onePlusOne(self.params,sensors[self.robot],10**(-3),10**(-7))
-        self.params = onePlusOne_sigmaFixe(self.params, sensors[self.robot], 10**(-1))
+        #self.params = onePlusOne_sigmaFixe(self.params, sensors[self.robot], 10**(-2))
+        #print("params : ", self.params)
         #print(self.params)
         self.updateFitness()
         self.stepController()
 
 
+
     def stepSearchMethod(self): # random search
+        if iteration == maxIterations:
+            self.affiche_meilleur_resultat()
         if iteration % 400 == 0:
 
+            #si la mutation testé est meilleur
+            if self.fitness >= self.best_fitness:
+                self.best_params = self.params
+                self.best_fitness = self.fitness
+
             # affiche la performance (et les valeurs de parametres)
-            if iteration != 0:
-                if self.bestFitness < self.fitness:
-                    self.bestFitness = self.fitness
-                    self.bestParam.append(self.params)
-            if self.bestParam != []:
-                self.affiche_meilleur_resultat()
-            print "Fitness:",self.fitness, "(best:", self.bestFitness,")"
+
+            print "Fitness:",self.fitness, "(best:", self.best_fitness,")"
             print "Parameters:", str(self.params)
 
             print "Evaluation no.", int(iteration/200)
@@ -240,10 +304,12 @@ class Agent(object):
             ry = randrange(-10,10)
             p.set_position(x+rx,y+ry)
             p.oriente( 0 )
-            self.genere_params()
+            #self.genere_params()
 
             # remet la fitness à zéro
             self.resetFitness()
+            #on test une nouvelle mutation
+            self.params = mutation_gaussienne(self.best_params, self.sigma)
 
 
     def stepController(self):
@@ -289,7 +355,7 @@ class Agent(object):
     def updateFitness(self):
         p = self.robot
         sensor_info = sensors[p]
-        self.fitness += f_objectif(self.params, sensor_info)
+        self.fitness += fonction_obj(self.params, sensor_info)
         return self.fitness
 
 
