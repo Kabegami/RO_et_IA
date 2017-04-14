@@ -80,9 +80,11 @@ def mutation_gaussienne(x,sigma=1):
     fils = []
     for gene in x:
         r = gene + gauss(0,1)*sigma
-        #on verifie que r n'explose pas
-        while r < -10 or r > 10:
-            r = gene + gauss(0,1)*sigma
+        #on verifie que r n'explose pas en le bornant
+        if r > 10:
+            r = 10
+        elif r < -10:
+            r = -10
         fils.append(r)
     return fils
 
@@ -135,51 +137,6 @@ def normalise(valeur, mini , maxi):
     n = (valeur - mini) / ((maxi - mini)*1.0)
     return n
 
-def f_objectif(x,sensor_info):
-        vt = 0
-        vr = 0
-        #on parcours les senseurs forward
-        minSensorDist = 100000000000000
-        maxSensorDist = 0
-        minSensorAngle = 10000000000000
-        maxSensorAngle = -170
-        mini = 1000000000000000000
-        for s in sensor_info:
-            minSensorAngle = min(minSensorAngle, s.rel_angle_degree)
-            maxSensorAngle = max(maxSensorAngle, s.rel_angle_degree)
-            distance = min(maxSensorDistance, s.dist_from_border)
-            mini = min(mini, distance)
-        #si notre est ne bouge pas , on met sa vitesse de translation a 0
-        #on ajoute le premier biais
-        vt += x[0]
-        for id_p in range(len(x)/2):
-            for s in sensor_info:
-                #print("param : {}".format(x[id_p]))
-                #print(type(x[id_p]))
-                distance = min(maxSensorDistance, s.dist_from_border)
-                si = normalise(distance,0, maxSensorDistance)
-                #x = vecteur de poids, si = neurone d'activation entre 0 et 1
-                vt += x[id_p]*(si)
-        vt = math.tanh(vt)
-
-        #on rajoute le deuxième biais (dans le cas d'un biais le neurone vaut toujours 1)
-        vr += x[len(x)/2]
-        #on parcours les senseurs rotate
-        for id_p in range(len(x)/2+1, len(x)):
-            for s in sensor_info:
-                si = normalise(s.rel_angle_degree, minSensorAngle, maxSensorAngle)
-                vr += x[id_p]*(si)
-
-        vr = math.tanh(vr)
-        #on calcule le senseur minimal
-        #min sensor distance est sense être compris entre -1 et 1
-
-        mini = normalise(mini,0,maxSensorDistance)
-        #print("mini : ",mini)
-        #print("minSensorDist : {}".format(mini))
-       # print("vt : {}, vr : {}, minSensorDist : {}".format(vt,vr,minSensorDist))
-        return (abs(vt)*abs((1-vr))*mini)
-
 def fonction_obj(params, sensor_info):
     #print(params)
     vt = 0
@@ -215,8 +172,7 @@ def fonction_obj(params, sensor_info):
     #on applique les fonction
     vr = math.tanh(vr)
     vt = math.tanh(vt)
-    return (abs(vt)*abs(1-vr)*minSensorValue)
-
+    return abs(vt)*abs(1-vr)*abs(minSensorValue)
 
 
 
@@ -227,7 +183,7 @@ class Agent(object):
     agentIdCounter = 0 # use as static
     id = -1
     robot = -1
-    name = "Equipe Evol" # A modifier avec le nom de votre équipe
+    name = "Equipe Kabegami" # A modifier avec le nom de votre équipe
     params = []
     fitness = bestFitness = 0
 
@@ -240,8 +196,8 @@ class Agent(object):
         self.sigma = 10**(-1)
         self.params = []
         self.best_params = None
+        #ici on veut minimiser la fitness
         self.best_fitness = -1*float("inf")
-        #Penser a gérer les biais
         self.nbParam = len(SensorBelt)*2+2
         #on génère x
         for i in range(self.nbParam):
@@ -272,16 +228,13 @@ class Agent(object):
     def step(self):
 
         self.stepSearchMethod()
-        #self.params = onePlusOne_sigmaFixe(self.params, sensors[self.robot], 10**(-2))
-        #print("params : ", self.params)
-        #print(self.params)
         self.updateFitness()
         self.stepController()
 
 
 
     def stepSearchMethod(self): # random search
-        if iteration == maxIterations:
+        if iteration == maxIterations - 1:
             self.affiche_meilleur_resultat()
         if iteration % 400 == 0:
 
@@ -289,6 +242,9 @@ class Agent(object):
             if self.fitness >= self.best_fitness:
                 self.best_params = self.params
                 self.best_fitness = self.fitness
+                self.sigma = 2*self.sigma
+            else:
+                self.sigma = 2**(-1/4.0)*self.sigma
 
             # affiche la performance (et les valeurs de parametres)
 
@@ -300,8 +256,8 @@ class Agent(object):
             p = self.robot
             x = screen_width/2
             y = screen_height/2
-            rx = randrange(-10,10)
-            ry = randrange(-10,10)
+            rx = randrange(-20,20)
+            ry = randrange(-20,20)
             p.set_position(x+rx,y+ry)
             p.oriente( 0 )
             #self.genere_params()
@@ -344,8 +300,10 @@ class Agent(object):
 
         #print "r =",rotation," - t =",translation
 
-        self.setRotationValue( min(max(rotation,-1),1) )
-        self.setTranslationValue( min(max(translation,-1),1) )
+        #self.setRotationValue( min(max(rotation,-1),1) )
+        #self.setTranslationValue( min(max(translation,-1),1) )
+        self.setRotationValue(math.tanh(rotation))
+        self.setTranslationValue(math.tanh(translation))
 
         return
 
