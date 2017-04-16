@@ -60,14 +60,15 @@ nbAgents = 1
 
 maxSensorDistance = 30              # utilisé localement.
 maxRotationSpeed = 5
-maxTranslationSpeed = 3
+maxTranslationSpeed = 1
 SensorBelt = [-170,-80,-40,-20,+20,40,80,+170]  # angles en degres des senseurs
 
 #On reset tout les 200 itérations donc il faut mettre un multiple de 200. ici on a 60 000 = 200 * 300
-maxIterations = 60000 # infinite: -1
+maxIterations = 600000 # infinite: -1
 
 showSensors = True
 frameskip = 200   # 0: no-skip. >1: skip n-1 frames
+#frameskip = 0
 verbose = True
 
 '''''''''''''''''''''''''''''
@@ -81,10 +82,11 @@ def mutation_gaussienne(x,sigma=1):
     for gene in x:
         r = gene + gauss(0,1)*sigma
         #on verifie que r n'explose pas en le bornant
+        if r < -10:
+            r = -10
         if r > 10:
             r = 10
-        elif r < -10:
-            r = -10
+
         fils.append(r)
     return fils
 
@@ -149,34 +151,64 @@ def fonction_obj(params, sensor_info):
         minSensorValue = min(minSensorValue,distance)
 
     #premier biais
-    vt += params[0]
-    index_senseur = 0
-    for i in range(1,len(params)/2):
-        distance = min(maxSensorDistance, (sensor_info[index_senseur]).dist_from_border)
+    vt += normalise(params[0],-10,10)
+
+    index_params = 0
+    for i in range(len(sensor_info)):
+        distance = min(maxSensorDistance, sensor_info[i].dist_from_border)
         #la distance est entre [0,maxSensorDistance] donc on normalise
         si = distance / (1.0 * max_distance)
-        vt += si * params[i]
-        index_senseur += 1
-
+        vt += si * normalise(params[index_params],-10,10)
+        index_params += 1
+        
     #deuxieme biais
-    vr += params[len(params)/2]
+    vr += normalise(params[index_params], -10, 10)
+    
     #on reparcours les senseur pour les angles
-    index_senseur = 0
-    for i in range(len(params)/2 + 1, len(params)):
-        #si = (sensor_info[index_senseur].rel_angle_degree + 170) / ((170 + 170)*1.0)
-        si = min(maxSensorDistance, (sensor_info[index_senseur]).dist_from_border)
+    for i in range(len(sensor_info)):
+        distance = min(maxSensorDistance, sensor_info[i].dist_from_border)
+        #la distance est entre [0,maxSensorDistance] donc on normalise
         si = distance / (1.0 * max_distance)
-        vr += si*params[i]
-        index_senseur += 1
+        vt += si * normalise(params[index_params],-10,10)
+        index_params += 1
 
-    #on applique les fonction
+    #on applique les fonction pour avoir des vitesse comprises entre -1 et 1 equivalent a faire min max comme le prof
     vr = math.tanh(vr)
     vt = math.tanh(vt)
-    return abs(vt)*abs(1-vr)*abs(minSensorValue)
+    return abs(vt)*(1-abs(vr))*abs(minSensorValue)
 
+def difference_tuple(t1,t2):
+    if len(t1) != len(t2):
+        print("erreur tuple de taille diffentes")
+        return None
+    val = 0
+    for i in range(len(t1)):
+        val += abs(t1[i] - t2[i])
+    return val
 
+def calcule_vitesse(p1,p2):
+    if len(p1) != len(p2):
+        print("erreur tuple de taille diffentes")
+        return None
+    a = abs(p2[1] - p1[1]) / (abs(p2[0] - p1[0])*1.0)
+    return a
 
+def calcule_vitesseMoyenne(p1,p2):
+    if len(p1) != len(p2):
+        print("erreur tuple de taille diffentes")
+        return None
+    distance = (p2[1] - p1[1])**2 + (p2[0] - p1[0])**2
+    distance = math.sqrt(distance)
+    return distance
 
+def calcule_rotation(a1,a2):
+    #Comme le cercle est modulo 360
+    if a2 - a1 > 100:
+        a1 = a1 + 360
+    elif a2 - a1 < -100:
+        a2 = a2 + 360
+    return abs(a2 - a1)
+            
 
 class Agent(object):
 
@@ -192,8 +224,9 @@ class Agent(object):
         Agent.agentIdCounter = Agent.agentIdCounter + 1
         #print "robot #", self.id, " -- init"
         self.robot = robot
-        self.oldPos = None
-        self.sigma = 10**(-1)
+        self.old_position = robot.position()
+        self.old_orientation = robot.orientation()
+        self.sigma = 10**(-2)
         self.params = []
         self.best_params = None
         #ici on veut minimiser la fitness
@@ -228,8 +261,9 @@ class Agent(object):
     def step(self):
 
         self.stepSearchMethod()
-        self.updateFitness()
+        #self.updateFitness()
         self.stepController()
+        #self.updateFitness()
 
 
 
@@ -240,11 +274,12 @@ class Agent(object):
 
             #si la mutation testé est meilleur
             if self.fitness >= self.best_fitness:
-                self.best_params = self.params
+                #c'est une liste donc on fait une copie
+                self.best_params = self.params[::]
                 self.best_fitness = self.fitness
                 self.sigma = 2*self.sigma
             else:
-                self.sigma = 2**(-1/4.0)*self.sigma
+                self.sigma = (2**(-1/4.0))*self.sigma
 
             # affiche la performance (et les valeurs de parametres)
 
@@ -256,10 +291,12 @@ class Agent(object):
             p = self.robot
             x = screen_width/2
             y = screen_height/2
-            rx = randrange(-20,20)
-            ry = randrange(-20,20)
+            rx = randrange(-5,5)
+            ry = randrange(-5,5)
             p.set_position(x+rx,y+ry)
             p.oriente( 0 )
+            self.old_position = p.position()
+            self.old_orientation = p.orientation()
             #self.genere_params()
 
             # remet la fitness à zéro
@@ -279,24 +316,37 @@ class Agent(object):
         translation = 0
         rotation = 0
 
+        minSensorValue = float("inf")
+        max_distance = -1 * float("inf")
+        #on recupere le minSensor et la distance max pour normaliser
+        for i in range(len(SensorBelt)):
+            #la distance renvoyer peut être négative
+            distance = min(maxSensorDistance, abs(sensor_infos[i].dist_from_border))
+            if distance < 0:
+                print("distance < 0, dist : {}".format(sensor_infos[i].dist_from_border))
+            max_distance = max(max_distance, sensor_infos[i].dist_from_border)
+            minSensorValue = min(minSensorValue, distance)
+
+
         k = 0
+        
+        translation += 1 * normalise(self.params[k],-10,10)
+        k = k + 1
+
 
         for i in range(len(SensorBelt)):
             dist = sensor_infos[i].dist_from_border/maxSensorDistance
             #print("k : {}".format(k))
-            translation += dist * self.params[k]
-            k = k + 1
-
-        translation += 1 * self.params[k]
-        k = k + 1
-
-        for i in range(len(SensorBelt)):
-            dist = sensor_infos[i].dist_from_border/maxSensorDistance
-            rotation += dist * self.params[k]
+            translation += dist * normalise(self.params[k], -10 ,10)
             k = k + 1
 
         rotation += 1 * self.params[k]
         k = k + 1
+
+        for i in range(len(SensorBelt)):
+            dist = sensor_infos[i].dist_from_border/maxSensorDistance
+            rotation += dist * normalise(self.params[k], -10, 10)
+            k = k + 1
 
         #print "r =",rotation," - t =",translation
 
@@ -304,7 +354,34 @@ class Agent(object):
         #self.setTranslationValue( min(max(translation,-1),1) )
         self.setRotationValue(math.tanh(rotation))
         self.setTranslationValue(math.tanh(translation))
+        #on veut avoir la vrai vitesse
+        #print("position : ",p.position())
+        self.vitesse = calcule_vitesseMoyenne(p.position(),self.old_position)
+        #print("orientation : {}".format(p.orientation()))
+        self.orientation = calcule_rotation(abs(p.orientation()), abs(self.old_orientation))
 
+        old = self.old_orientation
+        self.old_position = p.position()
+        self.old_orientation = p.orientation()
+        minSensorValue = normalise(minSensorValue, 0, maxSensorDistance)
+        #print("orientation precedante : {}".format(p.orientation()))
+
+        self.vitesse = normalise(self.vitesse, 0, maxTranslationSpeed)
+        self.orientation = normalise(self.orientation, 0, maxRotationSpeed)
+        #print("vitesse : {}, orientation : {}, minSensorValue : {}".format(self.vitesse, self.orientation, minSensorValue))
+        if self.vitesse * (1 - self.orientation) * minSensorValue < 0:
+            print("vitesse : {}, orientation : {}, minSensorValue : {}".format(self.vitesse, self.orientation, minSensorValue))
+            print("-------------------------------")
+            print("old_orientation : {}".format(old))
+            print("new_orientation : {}".format(p.orientation()))
+            print("-------------------------------")
+        #print("valeur ajouté a la fitness : {}".format(self.vitesse * (1 - self.orientation) * minSensorValue))
+        #il faut normaliser la vitesse et l'orientation et minSensorValue !!
+        self.fitness += self.vitesse * (1 - self.orientation) * (minSensorValue)
+        #rotation = math.tanh(rotation)
+        #translation = math.tanh(translation)
+        #self.fitness += abs(translation) * (1 - abs(rotation)) * minSensorValue
+    
         return
 
     def resetFitness(self):
