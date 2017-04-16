@@ -6,7 +6,7 @@ def condition_Eviteur_obstacle(g):
     return False
 
 def condition_Tout_droit(g):
-    if g.detecte_objet_devant:
+    if g.detecte_objet_droit:
         return True
     return False
 

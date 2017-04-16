@@ -117,6 +117,8 @@ class AgentTypeA(object):
         self.old_position = None
         #self.params = [3.0152760807777104, -8.830826040768226, -4.099400890339526, 2.765591888837083, -3.5067873607079894, -0.7320160184030771, -9.603175827716496, -1.5717312923526583, -9.110267550441604, -4.762674315012179, -9.983225329587391, 7.216960925658631, -9.829446961001894, -8.169108816906675, 3.606184617345332, 9.978836192713795, -3.751505291904133, 0.22251212407057291]
         self.params = [-6.3716521630271465, -6.8122552577372995, 6.083043180551293, -7.841374937788163, 6.080646068823316, 9.59847724878388, -3.316264601667571, -9.970183626270224, -8.528329100633862, -3.603473482372219, -7.107652981600935, 8.735725949741823, -5.5752182318063, -9.078439764918045, -7.149638538564817, -6.287929743560141, -4.13355767033372, 2.542500603036004]
+        #Mon robot ce comporte bizarement avec le random , il faut peut être le lancer plus longtemps avant de le lancer car des fois il fait random au lieu d'éviteur d'obstacle.
+        #Idée comparer la valeur de rotation / translation donnée et la vitesse pour voir si l'action a pu être réaliser correctement
         random = Action2(step_random, condition_random, 10)
         eviteur_obstacle = Action2(step_Eviteur_obstacle, condition_Eviteur_obstacle)
         tout_droit = Action2(step_tout_droit, condition_Tout_droit)
@@ -152,7 +154,6 @@ class AgentTypeA(object):
         circle( *self.getRobot().get_centroid() , r = 22) # je dessine un rond bleu autour de ce robot
 
         #print "robot #", self.id, " -- step"
-        #PROBLEME, j'ai besoin de garder en mémoire les anciennes positions pour calculer la vitesse et le mettre dans le gameDecorator
         p = self.robot
         sensor_infos = sensors[p]
 
@@ -160,6 +161,8 @@ class AgentTypeA(object):
         self.old_position = p.position()
         translation, rotation = self.subsomption.choisit_action(g)
 
+        self.old_translation = translation
+        self.old_rotation = translation
         self.setRotationValue(rotation)
         self.setTranslationValue(translation)
 

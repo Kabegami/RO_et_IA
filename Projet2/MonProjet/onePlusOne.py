@@ -97,13 +97,6 @@ def normalise(valeur, mini , maxi):
     n = (valeur - mini) / ((maxi - mini)*1.0)
     return n
 
-def calcule_vitesse(p1,p2):
-    if len(p1) != len(p2):
-        print("erreur tuple de taille diffentes")
-        return None
-    a = abs(p2[1] - p1[1]) / (abs(p2[0] - p1[0])*1.0)
-    return a
-
 def calcule_vitesseMoyenne(p1,p2):
     if len(p1) != len(p2):
         print("erreur tuple de taille diffentes")
