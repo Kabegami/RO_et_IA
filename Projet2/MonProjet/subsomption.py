@@ -15,26 +15,23 @@ class Subsomption(object):
                 return action
         return None
 
-    def choisit_action(self,p,sensors,maxSensorDistance, maxRotationSpeed):
-        self.g = gameDecorator(p, sensors,maxSensorDistance, maxRotationSpeed)
+    def choisit_action(self,g):
         # si il y a une action en cours
         if self.actionEnCours != []:
-            print("il y a une action en cours")
             a = self.actionEnCours[0]
-            a.effectueAction(self.g.p,True)
+            t,r = a.effectueAction(g)
             #si l'action est finis on la supprime de action en cours
             if not(a.runingAction):
-                print("l'action est supprimé")
+                #print("l'action est supprimé")
                 self.actionEnCours.remove(a)
-            return True
+            return ((t,r))
         else:
             for action in self.ListeAction:
-                #to do 
-                if action.condition(self.g):
-                    action.effectueAction(self.g.p, True)
+                if action.condition(g):
+                    t,r = action.effectueAction(g)
                     if action.runingAction:
                         self.actionEnCours.append(action)
-                    return True
+                    return ((t,r))
             return False
 
 class Action(object):
@@ -50,8 +47,8 @@ class Action(object):
 
     def effectueAction(self, p, v=False):
         """ renvoie True si la fonction est finis False sinon"""
-        if v:
-            print("L'action {} est effecuté".format(self.nom))
+        #if v:
+            #print("L'action {} est effecuté".format(self.nom))
         self.temps -= 1
         p.rotate(self.rotation)
         p.forward(self.deplacement)
@@ -66,10 +63,3 @@ class Action(object):
         if self.duree != self.temps:
             return True
         return False
-        
-class ArbreComportement(object):
-    def __init__(self, typeNoeud, fg, fd):
-        self.typeNoeud = typeNoeud
-        self.fg = fg
-        self.fd = fd
-

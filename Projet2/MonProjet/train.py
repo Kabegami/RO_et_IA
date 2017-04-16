@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#/usr/bin/env python
 # -*- coding: utf-8 -*-
 #
 # multirobot.py
@@ -56,7 +56,7 @@ game = Game()
 agents = []
 screen_width=512 #512,768,... -- multiples de 32
 screen_height=512 #512,768,... -- multiples de 32
-nbAgents = 1
+nbAgents = 2
 
 maxSensorDistance = 30              # utilisé localement.
 maxRotationSpeed = 5
@@ -133,7 +133,6 @@ class Agent(object):
     def __init__(self,robot):
         self.id = Agent.agentIdCounter
         Agent.agentIdCounter = Agent.agentIdCounter + 1
-        #print "robot #", self.id, " -- init"
         self.robot = robot
         self.old_position = robot.position()
         self.old_orientation = robot.orientation()
@@ -172,13 +171,11 @@ class Agent(object):
     def step(self):
 
         self.stepSearchMethod()
-        #self.updateFitness()
         self.stepController()
-        #self.updateFitness()
 
 
 
-    def stepSearchMethod(self): # random search
+    def stepSearchMethod(self): 
         if iteration == maxIterations - 1:
             self.affiche_meilleur_resultat()
         if iteration % 400 == 0:
@@ -223,6 +220,7 @@ class Agent(object):
         #print "robot #", self.id, " -- step"
         p = self.robot
         sensor_infos = sensors[p]
+        self.g = gameDecorator(self.robot, sensors, maxSensorDistance, maxRotationSpeed)
 
         translation = 0
         rotation = 0
@@ -290,7 +288,7 @@ class Agent(object):
         sensor_info = sensors[p]
         self.fitness += fonction_obj(self.params, sensor_info)
         return self.fitness
-
+        #self.updateFitness()        #self.updateFitness()
 
 
         #self.fitness += math.sqrt(abs(currentPos[0]**2-(screen_width/2)**2)) + math.sqrt(abs(currentPos[1]**2-(screen_height/2)**2))
