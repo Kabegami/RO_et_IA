@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2017.3.13)  17 APR 2017 12:34
+This is pdfTeX, Version 3.14159265-2.6-1.40.17 (TeX Live 2016/Arch Linux) (preloaded format=pdflatex 2017.3.13)  18 APR 2017 00:39
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1136,335 +1136,109 @@ LaTeX Font Info:    Font shape `T1/mdbch/m/fsc' will be
 {/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}]
 LaTeX Font Info:    Font shape `T1/mdbch/b/n' will be
 (Font)              scaled to size 13.82408pt on input line 86.
-
-Underfull \hbox (badness 10000) in paragraph at lines 93--94
-
- []
-
 LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
-(Font)              scaled to size 7.68005pt on input line 95.
+(Font)              scaled to size 7.68005pt on input line 96.
 LaTeX Font Info:    Font shape `OT1/mdbch/m/n' will be
-(Font)              scaled to size 5.76004pt on input line 95.
-LaTeX Font Info:    Try loading font information for OML+mdbch on input line 95
+(Font)              scaled to size 5.76004pt on input line 96.
+LaTeX Font Info:    Try loading font information for OML+mdbch on input line 96
 .
-(/usr/share/texmf-dist/tex/latex/mathdesign/mdbch/omlmdbch.fd
+ (/usr/share/texmf-dist/tex/latex/mathdesign/mdbch/omlmdbch.fd
 File: omlmdbch.fd 2013/08/29 Fontinst v1.933 font definitions for OML/mdbch.
 )
 LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
-(Font)              scaled to size 10.51207pt on input line 95.
+(Font)              scaled to size 10.51207pt on input line 96.
 LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
-(Font)              scaled to size 7.68005pt on input line 95.
+(Font)              scaled to size 7.68005pt on input line 96.
 LaTeX Font Info:    Font shape `OML/mdbch/m/it' will be
-(Font)              scaled to size 5.76004pt on input line 95.
-LaTeX Font Info:    Try loading font information for OMS+mdbch on input line 95
+(Font)              scaled to size 5.76004pt on input line 96.
+LaTeX Font Info:    Try loading font information for OMS+mdbch on input line 96
 .
 
 (/usr/share/texmf-dist/tex/latex/mathdesign/mdbch/omsmdbch.fd
 File: omsmdbch.fd 2013/08/29 Fontinst v1.933 font definitions for OMS/mdbch.
 )
 LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
-(Font)              scaled to size 10.51207pt on input line 95.
+(Font)              scaled to size 10.51207pt on input line 96.
 LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
-(Font)              scaled to size 7.68005pt on input line 95.
+(Font)              scaled to size 7.68005pt on input line 96.
 LaTeX Font Info:    Font shape `OMS/mdbch/m/n' will be
-(Font)              scaled to size 5.76004pt on input line 95.
-LaTeX Font Info:    Try loading font information for OMX+mdbch on input line 95
+(Font)              scaled to size 5.76004pt on input line 96.
+LaTeX Font Info:    Try loading font information for OMX+mdbch on input line 96
 .
 
 (/usr/share/texmf-dist/tex/latex/mathdesign/mdbch/omxmdbch.fd
 File: omxmdbch.fd 2013/08/29 Fontinst v1.933 font definitions for OMX/mdbch.
 )
 LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
-(Font)              scaled to size 10.51207pt on input line 95.
+(Font)              scaled to size 10.51207pt on input line 96.
 LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
-(Font)              scaled to size 7.68005pt on input line 95.
+(Font)              scaled to size 7.68005pt on input line 96.
 LaTeX Font Info:    Font shape `OMX/mdbch/m/n' will be
-(Font)              scaled to size 5.76004pt on input line 95.
+(Font)              scaled to size 5.76004pt on input line 96.
 LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
-(Font)              scaled to size 10.51207pt on input line 95.
+(Font)              scaled to size 10.51207pt on input line 96.
 LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
-(Font)              scaled to size 7.68005pt on input line 95.
+(Font)              scaled to size 7.68005pt on input line 96.
 LaTeX Font Info:    Font shape `OML/mdbch/m/n' will be
-(Font)              scaled to size 5.76004pt on input line 95.
-LaTeX Font Info:    Try loading font information for MDA+mdbch on input line 95
+(Font)              scaled to size 5.76004pt on input line 96.
+LaTeX Font Info:    Try loading font information for MDA+mdbch on input line 96
 .
 
 (/usr/share/texmf-dist/tex/latex/mathdesign/mdbch/mdamdbch.fd
 File: mdamdbch.fd 2013/08/29 Fontinst v1.933 font definitions for MDA/mdbch.
 )
 LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
-(Font)              scaled to size 10.51207pt on input line 95.
+(Font)              scaled to size 10.51207pt on input line 96.
 LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
-(Font)              scaled to size 7.68005pt on input line 95.
+(Font)              scaled to size 7.68005pt on input line 96.
 LaTeX Font Info:    Font shape `MDA/mdbch/m/n' will be
-(Font)              scaled to size 5.76004pt on input line 95.
-LaTeX Font Info:    Try loading font information for MDB+mdbch on input line 95
+(Font)              scaled to size 5.76004pt on input line 96.
+LaTeX Font Info:    Try loading font information for MDB+mdbch on input line 96
 .
 
 (/usr/share/texmf-dist/tex/latex/mathdesign/mdbch/mdbmdbch.fd
 File: mdbmdbch.fd 2013/08/29 Fontinst v1.933 font definitions for MDB/mdbch.
 )
 LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
-(Font)              scaled to size 10.51207pt on input line 95.
+(Font)              scaled to size 10.51207pt on input line 96.
 LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
-(Font)              scaled to size 7.68005pt on input line 95.
+(Font)              scaled to size 7.68005pt on input line 96.
 LaTeX Font Info:    Font shape `MDB/mdbch/m/n' will be
-(Font)              scaled to size 5.76004pt on input line 95.
-
-Underfull \hbox (badness 10000) in paragraph at lines 95--102
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 103--104
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 105--108
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 114--115
-
- []
-
+(Font)              scaled to size 5.76004pt on input line 96.
 LaTeX Font Info:    Font shape `T1/mdbch/m/it' will be
-(Font)              scaled to size 10.51207pt on input line 117.
+(Font)              scaled to size 10.51207pt on input line 124.
+
 
 Package Fancyhdr Warning: \headheight is too small (12.0pt): 
  Make it at least 13.59999pt.
  We now make it that large for the rest of the document.
  This may cause the page layout to be inconsistent, however.
 
-[1]
-Underfull \hbox (badness 10000) in paragraph at lines 123--133
-
- []
-
-
-Underfull \hbox (badness 10000) in paragraph at lines 133--136
-
- []
-
-[2]
-! Missing $ inserted.
-<inserted text> 
-                $
-l.170     \Retour
-                  $(chemin, gain)$
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
-
-! Extra }, or forgotten $.
-<recently read> \egroup 
-                        
-l.170     \Retour
-                  $(chemin, gain)$
-I've deleted a group-closing symbol because it seems to be
-spurious, as in `$x}$'. But perhaps the } is legitimate and
-you forgot something else, as in `\hbox{$x}'. In such cases
-the way to recover is to insert both the forgotten and the
-deleted material, e.g., by typing `I$}'.
-
-! Extra }, or forgotten $.
-<recently read> \egroup 
-                        
-l.170     \Retour
-                  $(chemin, gain)$
-I've deleted a group-closing symbol because it seems to be
-spurious, as in `$x}$'. But perhaps the } is legitimate and
-you forgot something else, as in `\hbox{$x}'. In such cases
-the way to recover is to insert both the forgotten and the
-deleted material, e.g., by typing `I$}'.
-
-LaTeX Font Info:    Font shape `T1/mdbch/m/it' will be
-(Font)              scaled to size 7.68005pt on input line 170.
-LaTeX Font Info:    Font shape `T1/mdbch/m/it' will be
-(Font)              scaled to size 5.76004pt on input line 170.
-! Missing $ inserted.
-<inserted text> 
-                $
-l.170     \Retour
-                  $(chemin, gain)$
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
-
-! Missing $ inserted.
-<inserted text> 
-                $
-l.170     \Retour
-                  $(chemin, gain)$
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
-
-! Extra }, or forgotten $.
-<recently read> \egroup 
-                        
-l.170     \Retour
-                  $(chemin, gain)$
-I've deleted a group-closing symbol because it seems to be
-spurious, as in `$x}$'. But perhaps the } is legitimate and
-you forgot something else, as in `\hbox{$x}'. In such cases
-the way to recover is to insert both the forgotten and the
-deleted material, e.g., by typing `I$}'.
-
-! Extra }, or forgotten $.
-<recently read> \egroup 
-                        
-l.170     \Retour
-                  $(chemin, gain)$
-I've deleted a group-closing symbol because it seems to be
-spurious, as in `$x}$'. But perhaps the } is legitimate and
-you forgot something else, as in `\hbox{$x}'. In such cases
-the way to recover is to insert both the forgotten and the
-deleted material, e.g., by typing `I$}'.
-
-! Missing $ inserted.
-<inserted text> 
-                $
-l.170     \Retour
-                  $(chemin, gain)$
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
-
-! Missing } inserted.
-<inserted text> 
-                }
-l.171 \end{algorithm}
-                     
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-! Missing } inserted.
-<inserted text> 
-                }
-l.171 \end{algorithm}
-                     
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-! Missing } inserted.
-<inserted text> 
-                }
-l.171 \end{algorithm}
-                     
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-
-Overfull \hbox (5.65602pt too wide) detected at line 171
-[][]
- []
-
-! Missing } inserted.
-<inserted text> 
-                }
-l.171 \end{algorithm}
-                     
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-! Missing $ inserted.
-<inserted text> 
-                $
-l.195     \Retour
-                  $(Faux, \emptyset)$
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
-
-! Extra }, or forgotten $.
-<recently read> \egroup 
-                        
-l.195     \Retour
-                  $(Faux, \emptyset)$
-I've deleted a group-closing symbol because it seems to be
-spurious, as in `$x}$'. But perhaps the } is legitimate and
-you forgot something else, as in `\hbox{$x}'. In such cases
-the way to recover is to insert both the forgotten and the
-deleted material, e.g., by typing `I$}'.
-
-! Extra }, or forgotten $.
-<recently read> \egroup 
-                        
-l.195     \Retour
-                  $(Faux, \emptyset)$
-I've deleted a group-closing symbol because it seems to be
-spurious, as in `$x}$'. But perhaps the } is legitimate and
-you forgot something else, as in `\hbox{$x}'. In such cases
-the way to recover is to insert both the forgotten and the
-deleted material, e.g., by typing `I$}'.
-
-! Missing $ inserted.
-<inserted text> 
-                $
-l.195     \Retour
-                  $(Faux, \emptyset)$
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
-
-! Missing } inserted.
-<inserted text> 
-                }
-l.196 \end{algorithm}
-                     
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-! Missing } inserted.
-<inserted text> 
-                }
-l.196 \end{algorithm}
-                     
-I've inserted something that you may have forgotten.
-(See the <inserted text> above.)
-With luck, this will get me unwedged. But if you
-really didn't forget anything, try typing `2' now; then
-my insertion and my current dilemma will both disappear.
-
-[3] (./Becirspahic_projet.aux) )
+[1] [2] (./Becirspahic_projet.aux) )
 (\end occurred inside a group at level 1)
 
 ### simple group (level 1) entered at line 1061 ({)
 ### bottom level 
 Here is how much of TeX's memory you used:
- 18453 strings out of 493013
- 328443 string characters out of 6139317
- 399498 words of memory out of 5000000
- 21596 multiletter control sequences out of 15000+600000
- 62095 words of font info for 79 fonts, out of 8000000 for 9000
+ 18446 strings out of 493013
+ 328349 string characters out of 6139317
+ 398496 words of memory out of 5000000
+ 21590 multiletter control sequences out of 15000+600000
+ 48390 words of font info for 72 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 55i,16n,72p,603b,12205s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 55i,11n,72p,448b,11991s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texmf-dist/fonts/enc/dvips/ly1/texnansi.enc}</usr/s
 hare/texmf-dist/fonts/type1/bitstrea/charter/bchb8a.pfb></usr/share/texmf-dist/
 fonts/type1/bitstrea/charter/bchbi8a.pfb></usr/share/texmf-dist/fonts/type1/bit
 strea/charter/bchr8a.pfb></usr/share/texmf-dist/fonts/type1/bitstrea/charter/bc
 hri8a.pfb></usr/share/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chb8t.p
 fb></usr/share/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7t.pfb></us
-r/share/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7v.pfb></usr/share
-/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7y.pfb></usr/share/texmf-
-dist/fonts/type1/public/mathdesign/mdbch/md-chri7m.pfb></usr/share/texmf-dist/f
-onts/type1/public/mathdesign/mdbch/md-chri8t.pfb>
-Output written on Becirspahic_projet.pdf (4 pages, 78612 bytes).
+r/share/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chr7y.pfb></usr/share
+/texmf-dist/fonts/type1/public/mathdesign/mdbch/md-chri7m.pfb>
+Output written on Becirspahic_projet.pdf (3 pages, 64489 bytes).
 PDF statistics:
- 61 PDF objects out of 1000 (max. 8388607)
- 44 compressed objects within 1 object stream
+ 50 PDF objects out of 1000 (max. 8388607)
+ 36 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  13 words of extra memory for PDF output out of 10000 (max. 10000000)
 

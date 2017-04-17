@@ -85,120 +85,41 @@ numberstyle=\tiny\color{mygray},
 
 \section{Introduction}
 
-Le but du projet est de réaliser des intelligences artificielles pour jouer a un jeu de capture de case par equipe. Chaque équipe est composé de 4 robot. Il faut maximiser le nombre de cases possédées à la fin de la partie. Pour ce faire, on peut définir des algorithmes à la main , ou avec des algorithmes évolutionistes.
+L'objectif de ce  projet est de réaliser des intelligences artificielles pour jouer a un jeu de capture de case par equipes. Chaque équipes est composées de 4 robots. Il faut maximiser le nombres de cases possédées à la fin de la partie. Pour ce faire, on peut définir des algorithmes à la main ou des algorithmes évolutionistes.
 
 
 \section{Algorithmes génétiques}
 
-Notre algorithme est 2 neurones qui prennent en entrée des senseurs avec des valeurs comprises entre 0 et 1 , et avec des poids correspondant aux génomes trouvés avec les algorithmes génétiques. Le premier neurone calcule la valeur de translation et le second la valeur de rotation. \\
-
-On définit une fonction $fitness$ , qui permet de voir à quel point l'objectif de notre robot est respecté pour des paramètres donnés. On cherche donc a trouver les valeurs optimales de notre généome qui permet de maximiser cette fonction. \\
-La permière aproche, la plus simple consiste à tirer aléatoirement les parametres et garder le champion : selui avec la meilleur fitness. Néenmoins cette methode prend beaucoup de temps à converger et de ce fait donne souvent un optimum local. \\
-Une approche plus intelligente est de faire une mutation gaussienne sur notre champion afin de faire varier les parametres tout en restant proche du génome du champion. On introduit un $\sigma$ pour faire varier l'amplitude de la mutation. Néenmoins avec un $\sigma$ fixe, on s'approche de la valeur optimal mais trop brutalement , les mutations changent trop notre génome. C'est pourquoi on fait bouger le $\sigma$ de la manière suivante : \\
+On cherche à trouver les poids associés aux différents senseurs de notre robot dans des neurones.
+On a deux neurones, un pour avoir la valeur de transltation et l'autre pour celle de la rotation.
+Chaque senseur à une valeur d'activation comprise entre 0 et 1 et est l'entrée de notre neurone.
+On cherche à déterminer les valeurs optimales des poids. Pour ce faire, on définit une fonction $fitness$ , qui permet de voir à quel point l'objectif de notre robot est respecté pour des paramètres donnés. On cherche donc a trouver les valeurs optimales de notre généome qui permet de maximiser cette fonction. \\
+La permière aproche, la plus simple consiste à tirer aléatoirement les parametres et garder le champion : celui avec la meilleur fitness. Néenmoins cette methode prend beaucoup de temps à converger et de ce fait donne souvent un optimum local.
+Par exemple dans le cas d'un éviteur d'obstacle, l'optimum local est un robot qui tourne en rond .\\
+Une approche plus intelligente est de faire une mutation gaussienne sur notre champion afin de faire varier les parametres tout en restant proche du génome du champion. \\
+On introduit un $\sigma$ pour faire varier l'amplitude de la mutation. Néenmoins avec un $\sigma$ fixe, on s'approche de la valeur optimal mais trop brutalement , les mutations changent trop notre génome. C'est pourquoi on fait bouger le $\sigma$ de la manière suivante : \\
 Si la fitness trouvée est meilleur que la précédante, on augmente $\sigma$ pour qu'il soit plus grand : 
 $\sigma = 2\sigma$ \\
 Sinon on veut avoir des variations plus fines, donc on réduit $\sigma$ : 
 $\sigma = 2^{-1/4}\sigma$ \\
-
 On peut déveloper des comportements variés en fonction de la fonction fitness choisit par exemples : \\
-
 -- \textbf {Eviteur d'obstacle} $fitness=vt*(1-vr)*MinSenseurValue$ \\
 -- \textbf {Colle mur} $fitness=vt*(1-vr)*(1-MinSenseurValue)$ \\
 -- \textbf {Traqueur} $fitness=vt*(1-vr)*MinSenseurEnemis$ \\
+remarque: seul l'éviteur d'obstacle à été implémenté.
 
-Dans cette section, nous allons aborder brièvement des stratégies simples, qui peuvent servir de base pour nos autres stratégies ou comme adversaire. \\
--- \textbf {stratégie naive} : Cette stratégie va ramasser les fioles les plus proches du joueur. Ces résultats sont mauvais à cause de l'heuristique simpliste qui considère que maximiser le nombre de fioles ramassées suffit pour gagner.
+\section{Mise en oeuvre}
+Dans le cadre du projet, nous avons utilisé une architechture de subsomption, constituée de stratégies à la main et d'algorithmes génétiques. \\
+Nous avons définit un objet $Action$, qui est constitué d'une action , d'une condition et d'une durée. \\
+La condition permet de savoir quand il faut utiliser l'action et la durée permet de faire une action de manière continue par exemple pour reculer sufisament avant de re-avancer. \\
+Parmis les différents comportements, nous avons implémenté un random quand le robot est coincé, un traqueur qui suit un robot adversaire, une action d'immobilisation si notre robot detecte qu'il est suivit. \\
+Afin de faciliter la programation, nous avons implémenté un $GameDecorator$ qui contient des attributs plus facile à manipuler comme information de jeu tel que les senseurs avant, ou l'adversaire le plus proche détecté. \\
+Celui ci est recalculer lors de chaque $step$ du jeu.
+L'architecture de subsomption choisit une action dans la liste d'action et l'exécute si c'est possible lors de chaque étape de jeu.
 
--- \textbf {stratégie meilleur valeur proche} : Légère amélioration de l'algorithme naif qui tient compte des valeurs associés aux fioles et de leurs distances.On prend la fiole qui maximise $valeur$ - $distance$
-
--- \textbf {stratégie regroupement} : On améliore notre stratégie en se basant sur l'heuristique suivante: il vaut mieux prendre une fiole qui est proche des autres qu'au milieu de nulle part. Pour ce faire, on introduit $d$ : la distance d'une fiole $f1$ vis à vis des autres fioles : \\
-\[ d = \sum_{f2 \in fioles} distance(f1,f2) \]
-On prend la fiole qui maximise $\beta*valeur -distance - \alpha$ * $d$. Avec $\alpha$ un paramètre compris entre 0 et 1 pour réduire l'importance de $d$ et $\beta$ un paramètre compris entre 1 et 2 pour augmenter l'importance de la valeur associée aux fioles. J'ai introduit ces paramètres car $d$ avait une valeur trop importante. A cause de cela , notre intelligence artificielle n'allait pas chercher des fioles intéressantes. Une autre solution aurait été de normaliser les valeurs de mes parametres afin qu'ils aient un poids équivalent.
-
-\section{La stratégie contre}
-
-Dans cette stratégie on suppose que l'on connaît la stratégie de l'adversaire.
-Le concept de l'algorithme est le suivant : on a un le chemin des fioles par lequel notre personne passe initialement et le chemin de l'adversaire. On cherche à améliorer notre score en allant prendre les fioles dans un ordre différent, de manière astucieuse pour améliorer notre score a partir de la connaissance du chemin adverse.
-
--- {\itshape Quelques notations :}
-Soit un chemin, la liste ordonée des fioles par lequel un personnage va passer, on le représente comme une liste de tuples (fiole, distance). \\
-L'attribut distance représente la distance commulée pour aller à cette fiole depuis mon état initial en passant par les états antérieurs de mon chemin.\\
-Soit $s1$, le chemin de mon joueurs en se basant sur la stratégie qui prend la meilleur fiole possible dans une distance raisonnable(stratégie meilleur valeur proche). \\
-Soit $s2$, le chemin de mon adversaire optenu en appliquant sa stratégie. \\
-Soit la fonction $distance(chemin,fiole)$ la distance qu'il me faut pour atteindre la fiole en passant par le chemin \\
-On définit un dictionnaire de gain nomé $dicoGain$ pour chaque fioles de la manière suivante : \\
--- {\itshape Si distance(s1,fiole) > distance(s2,fiole) alors dicoGain[fiole] = valeur de la fiole} \\
--- {\itshape Sinon dicoGain[fiole] = -1 * valeur de la fiole } \\
-Une fois ces choses définis, on arrive au coeur de l'algorithme, on cherche à maximiser : \\
-\[ gain = \sum_{f \in fioles} dicoGain[f] \]
-Pour ce faire, on dispose d'une opération de permutation qui change l'ordre de ramassage des fioles de  $s1$ en fonction de $s2$.
-On définit cette opération de la manière suivante : \\
-
-
-
-\newpage
-
-\RestyleAlgo{boxed}
-\SetAlgoVlined
-\begin{algorithm}
-    \TitleOfAlgo{Permutation(chemin du joueur,chemin de l'adversaire,fiole,case)}
-    \Entree{$s1$ : chemin, $f$ : fiole, $case$ : case}
-    $old \leftarrow $ chemin du point de départ jusqu'a la fiole qui précède la case  \\
-    $old \leftarrow $ on ajoute (case, distance(fiole precedante, case)) a la suite de old\\
-    $new \leftarrow $ on recalcule le chemin et les distances pour les fioles restantes \\
-    $chemin \leftarrow $ on concatene $old$ et  $new$  \\
-    \Retour $chemin$
-\end{algorithm}
-
-Puis, on souhaite trouver la meilleure permutation parmis celles possibles de la manière suivante :
-
-\RestyleAlgo{boxed}
-\SetAlgoVlined
-\begin{algorithm}
-    \TitleOfAlgo{MeilleurPermutation(chemin du joueur, chemin de l'adversaire, fioles)}
-    \Entree{$s1$ : chemin, $s2$ : chemin de l'adversaire, $fioles$ : liste de fioles}
-    \Pour{$f$ \in  $ fioles$}{
-      \Pour{$case$ \in  $ s1$}{
-        $new$ = $Permutation(s1,s2,f,case)$ \\
-        On calcule le dicoGain pour le nouveau chemin \\
-        new gain $\leftarrow$ la nouvelle valeur du gain \\
-        \Si{$new gain > gain$}
-           {$chemin \leftarrow new$ \\
-             $gain \leftarrow $ new gain}
-      }
-    }
-    \Retour $(chemin, gain)$
-\end{algorithm}
-
-On réitère cette opération jusqu'a convergence(obtenir le même chemin 2 fois de suite).
-Une fois cette étape résolue on a le chemin final de notre algorithme et il nous reste plus qu'a le suivre pour savoir quel coup jouer. 
-
--- {\itshape Quelques remarques :}
-Etant donné que l'on ne peut pas connaitre avec certitude la stratégie de l'adversaire, il faut avoir une fonction de prédiction qui étant donné la mémoire des coups précédants nous dit quel est la strategie de l'adversaire. \\
-Cette fonction est appelée à chaque étape de jeu et détermine la strategie de l'adversaire. Si on ne peux trouver sa strategie on applique la stratégie meilleur valeur proche. \\
-La fonction de prédiction se base sur les stratégies de bases que j'ai définit. Donc si c'est une stratégie que je n'ai pas implémentée , mon algorithme ne pourra pas la contrer.
-
-
-\RestyleAlgo{boxed}
-\SetAlgoVlined
-\begin{algorithm}
-    \TitleOfAlgo{Prediction(Etats precedants,strategie)}
-    \Entree{$prec$ : l'ensemble des n coups précédants, $strategiePrec$ : La stratégie précédante}
-    \Si{$strategiePrec(prec[n-1])$ = $prec[n]$}
-      {\Retour $(Vrai, strategiePrec)$}
-    \Pour{$strat$ \in  $ strategies$}{
-        \Si{$strategiePrec[n-1]$ =  la position de l'adversaire à l'état précédant}
-           {
-             \Retour $(Vrai, strat)$
-           }
-    }
-    \Retour $(Faux, \emptyset)$
-\end{algorithm}
-
--- {\itshape Conclusion :}
-Il est dificile de d'évaluer et de comparer nos stratégies à cause de la nature aléatoire du jeu. Néenmoins, on pourait faire des statistiques pour voir en moyenne comment ce débrouille les stratégies. Je n'ai pas effectué cette partie par manque de temps.
-
-
-
+\section{Ouverture}
+Une stratégie envisagable qui n'a pas été implémenté, aurait été de définir la fitness comme le score final d'une partie. \\
+Puis d'utiliser un algorithme génétique pour trouver les paramètres adaptés. \\
+En revanche, il faut faire attention car cela entraine le robot a jouer contre une équipe advserse spécifique et non pas toutes les équipes possibles.
 
 \end{document}

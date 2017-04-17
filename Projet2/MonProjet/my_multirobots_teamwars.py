@@ -125,10 +125,11 @@ class AgentTypeA(object):
         tout_droit = Action2(step_tout_droit, condition_Tout_droit)
         traqueur = Action2(step_traqueur, condition_traqueur)
         tortue = Action2(step_suivie, condition_suivie)
-        deserteur = Action2(step_Eviteur_obstacle, condition_adv_imobile, 5)
+        deserteur = Action2(step_Eviteur_obstacle, condition_adv_imobile, 20)
         ListeAction = [deserteur, tortue, random, traqueur, eviteur_obstacle, tout_droit]
         self.subsomption = Subsomption(ListeAction)
         self.old_position_adv_plus_proche = None
+        self.vitesse_adv_plus_proche = None
 
 
         
@@ -162,10 +163,15 @@ class AgentTypeA(object):
         p = self.robot
         sensor_infos = sensors[p]
 
-        g = gameDecorator(p, sensors, maxSensorDistance, AgentTypeA.liste_equipier, self.old_position, self.old_position_adv_plus_proche)
+        g = gameDecorator(p, sensors, maxSensorDistance, AgentTypeA.liste_equipier, self.old_position, self.old_position_adv_plus_proche, self.vitesse_adv_plus_proche)
         self.old_position = p.position()
         translation, rotation = self.subsomption.choisit_action(g)
-        self.old_position_adv_plus_proche = g.old_position_adv_plus_proche
+        if g.adversaire_devant():
+            self.old_position_adv_plus_proche = g.old_position_adv_plus_proche
+            self.vitesse_adv_plus_proche = g.vitesse_adv_plus_proche
+        else:
+            self.old_position_adv_plus_proche = None
+            self.vitesse_adv_plus_proche = None
 
         self.old_translation = translation
         self.old_rotation = translation
@@ -214,7 +220,6 @@ class AgentTypeB(object):
     agentIdCounter = 0 # use as static
     id = -1
     robot = -1
-
     agentType = "B"
 
     def __init__(self,robot):
@@ -223,7 +228,6 @@ class AgentTypeB(object):
         #print "robot #", self.id, " -- init"
         self.robot = robot
         self.old_position = None
-        AgentTypeA.liste_equipier.append(robot)
         #Mon robot ce comporte bizarement avec le random , il faut peut être le lancer plus longtemps avant de le lancer car des fois il fait random au lieu d'éviteur d'obstacle.
         #Idée comparer la valeur de rotation / translation donnée et la vitesse pour voir si l'action a pu être réaliser correctement
         random = Action2(step_random, condition_random)
