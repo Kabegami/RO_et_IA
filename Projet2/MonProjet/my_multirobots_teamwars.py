@@ -122,7 +122,8 @@ class AgentTypeA(object):
         random = Action2(step_random, condition_random, 10)
         eviteur_obstacle = Action2(step_Eviteur_obstacle, condition_Eviteur_obstacle)
         tout_droit = Action2(step_tout_droit, condition_Tout_droit)
-        ListeAction = [random, eviteur_obstacle, tout_droit]
+        traqueur = Action2(step_traqueur, condition_suivie)
+        ListeAction = [random, traqueur, eviteur_obstacle, tout_droit]
         self.subsomption = Subsomption(ListeAction)
 
 

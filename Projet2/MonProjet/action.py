@@ -9,6 +9,15 @@ SensorBelt = [-170,-80,-40,-20,+20,40,80,+170]
 import random
 import math
 
+
+def calcule_rotation(a1,a2):
+    #Comme le cercle est modulo 360
+    if a2 - a1 > 100:
+        a1 = a1 + 360
+    elif a2 - a1 < -100:
+        a2 = a2 + 360
+    return abs(a2 - a1)
+
 class Action2(object):
     """ remarque : quand on veut faire reculer le robot, il faut qu'il fasse une suite de deplacement différents, ici ma structure ne me permet pas d'implementer cela, #todo"""
     def __init__(self,action, condition, duree=1):
@@ -81,9 +90,25 @@ def step_Eviteur_obstacle(g):
     return (math.tanh(translation), math.tanh(rotation))
         
 def step_tout_droit(g):
-    return (1,0)
+    return (maxTranslationSpeed,0)
 
 def step_random(g):
     x = random.randint(-1,1)
     y = random.randint(-1,1)
     return ((x,y))
+
+def step_traqueur(g):
+    Lsenseur = g.get_adversaire_devant()
+    senseur = g.plus_proche(Lsenseur)
+    angle = senseur.rel_angle_degree
+    
+    print("angle : {}".format(angle))
+    difference = calcule_rotation(g.orientation, angle)
+
+    #si le senseur est a gauche
+    if senseur == g.senseurDevant[0]:
+        #on borne la rotation a 
+        rotation = max(-1* maxRotationSpeed,-1* difference)
+    else:
+        rotation = max(maxRotationSpeed, difference)
+    return ((maxTranslationSpeed, rotation))
