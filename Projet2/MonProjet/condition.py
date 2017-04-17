@@ -15,7 +15,22 @@ def condition_random(g):
         return True
     return False
 
+def condition_traqueur(g):
+    if g.adversaire_devant():
+        print("appel traqueur")
+        return True
+    return False
+
 def condition_suivie(g):
     if g.est_suivie():
+        return True
+    return False
+
+def condition_adv_imobile(g):
+    #print("vitesse adv_plus_proche : ",g.vitesse_adv_plus_proche)
+    if g.vitesse_adv_plus_proche is None:
+        return False
+    if g.vitesse_adv_plus_proche < 0.1:
+        print("appel deserteur")
         return True
     return False

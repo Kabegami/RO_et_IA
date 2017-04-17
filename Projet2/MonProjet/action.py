@@ -90,7 +90,7 @@ def step_Eviteur_obstacle(g):
     return (math.tanh(translation), math.tanh(rotation))
         
 def step_tout_droit(g):
-    return (maxTranslationSpeed,0)
+    return (1,0)
 
 def step_random(g):
     x = random.randint(-1,1)
@@ -98,17 +98,13 @@ def step_random(g):
     return ((x,y))
 
 def step_traqueur(g):
-    Lsenseur = g.get_adversaire_devant()
-    senseur = g.plus_proche(Lsenseur)
+    print("action : traqueur")
+    senseur = g.adv_plus_proche()
+    #senseur.rel_angle_degree donne l'angle relatif pas besoin de le calculer
     angle = senseur.rel_angle_degree
-    
-    print("angle : {}".format(angle))
-    difference = calcule_rotation(g.orientation, angle)
 
-    #si le senseur est a gauche
-    if senseur == g.senseurDevant[0]:
-        #on borne la rotation a 
-        rotation = max(-1* maxRotationSpeed,-1* difference)
-    else:
-        rotation = max(maxRotationSpeed, difference)
-    return ((maxTranslationSpeed, rotation))
+    rotation = min(max(angle, -1),1)
+    return ((1, rotation))
+
+def step_suivie(g):
+    return ((0,0))

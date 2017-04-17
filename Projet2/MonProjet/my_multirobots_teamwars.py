@@ -108,6 +108,8 @@ class AgentTypeA(object):
     id = -1
     robot = -1
     agentType = "A"
+    #Pour savoir si un robot est equipier ou non on est obliger de garder une liste des equipier
+    liste_equipier = []
 
     def __init__(self,robot):
         self.id = AgentTypeA.agentIdCounter
@@ -115,16 +117,18 @@ class AgentTypeA(object):
         #print "robot #", self.id, " -- init"
         self.robot = robot
         self.old_position = None
-        #self.params = [3.0152760807777104, -8.830826040768226, -4.099400890339526, 2.765591888837083, -3.5067873607079894, -0.7320160184030771, -9.603175827716496, -1.5717312923526583, -9.110267550441604, -4.762674315012179, -9.983225329587391, 7.216960925658631, -9.829446961001894, -8.169108816906675, 3.606184617345332, 9.978836192713795, -3.751505291904133, 0.22251212407057291]
-        self.params = [-6.3716521630271465, -6.8122552577372995, 6.083043180551293, -7.841374937788163, 6.080646068823316, 9.59847724878388, -3.316264601667571, -9.970183626270224, -8.528329100633862, -3.603473482372219, -7.107652981600935, 8.735725949741823, -5.5752182318063, -9.078439764918045, -7.149638538564817, -6.287929743560141, -4.13355767033372, 2.542500603036004]
+        AgentTypeA.liste_equipier.append(robot)
         #Mon robot ce comporte bizarement avec le random , il faut peut être le lancer plus longtemps avant de le lancer car des fois il fait random au lieu d'éviteur d'obstacle.
         #Idée comparer la valeur de rotation / translation donnée et la vitesse pour voir si l'action a pu être réaliser correctement
-        random = Action2(step_random, condition_random, 10)
+        random = Action2(step_random, condition_random)
         eviteur_obstacle = Action2(step_Eviteur_obstacle, condition_Eviteur_obstacle)
         tout_droit = Action2(step_tout_droit, condition_Tout_droit)
-        traqueur = Action2(step_traqueur, condition_suivie)
-        ListeAction = [random, traqueur, eviteur_obstacle, tout_droit]
+        traqueur = Action2(step_traqueur, condition_traqueur)
+        tortue = Action2(step_suivie, condition_suivie)
+        deserteur = Action2(step_Eviteur_obstacle, condition_adv_imobile, 5)
+        ListeAction = [deserteur, tortue, random, traqueur, eviteur_obstacle, tout_droit]
         self.subsomption = Subsomption(ListeAction)
+        self.old_position_adv_plus_proche = None
 
 
         
@@ -158,9 +162,10 @@ class AgentTypeA(object):
         p = self.robot
         sensor_infos = sensors[p]
 
-        g = gameDecorator(p, sensors, maxSensorDistance, self.old_position)
+        g = gameDecorator(p, sensors, maxSensorDistance, AgentTypeA.liste_equipier, self.old_position, self.old_position_adv_plus_proche)
         self.old_position = p.position()
         translation, rotation = self.subsomption.choisit_action(g)
+        self.old_position_adv_plus_proche = g.old_position_adv_plus_proche
 
         self.old_translation = translation
         self.old_rotation = translation
@@ -217,6 +222,19 @@ class AgentTypeB(object):
         AgentTypeB.agentIdCounter = AgentTypeB.agentIdCounter + 1
         #print "robot #", self.id, " -- init"
         self.robot = robot
+        self.old_position = None
+        AgentTypeA.liste_equipier.append(robot)
+        #Mon robot ce comporte bizarement avec le random , il faut peut être le lancer plus longtemps avant de le lancer car des fois il fait random au lieu d'éviteur d'obstacle.
+        #Idée comparer la valeur de rotation / translation donnée et la vitesse pour voir si l'action a pu être réaliser correctement
+        random = Action2(step_random, condition_random)
+        eviteur_obstacle = Action2(step_Eviteur_obstacle, condition_Eviteur_obstacle)
+        tout_droit = Action2(step_tout_droit, condition_Tout_droit)
+        traqueur = Action2(step_traqueur, condition_traqueur)
+        tortue = Action2(step_suivie, condition_suivie)
+        deserteur = Action2(step_Eviteur_obstacle, condition_adv_imobile, 5)
+        ListeAction = [random, eviteur_obstacle, tout_droit]
+        self.subsomption = Subsomption(ListeAction)
+        self.old_position_adv_plus_proche = None
 
     def getType(self):
         return self.agentType
@@ -242,10 +260,18 @@ class AgentTypeB(object):
         #print "robot #", self.id, " -- step"
 
         p = self.robot
+        sensor_infos = sensors[p]
 
-        # actions
-        sensor_infos = sensors[p] # sensor_infos est une liste de namedtuple (un par capteur).
-        #print "sensor_infos: ", sensor_infos[0].dist_from_border
+        #g = gameDecorator(p, sensors, maxSensorDistance, AgentTypeA.liste_equipier, self.old_position, self.old_position_adv_plus_proche)
+        #self.old_position = p.position()
+        #translation, rotation = self.subsomption.choisit_action(g)
+        #self.old_position_adv_plus_proche = g.old_position_adv_plus_proche
+
+        #self.old_translation = translation
+        #self.old_rotation = translation
+        #self.setRotationValue(rotation)
+        #self.setTranslationValue(translation)
+
         distGauche = sensor_infos[2].dist_from_border
         if distGauche > maxSensorDistance:
             distGauche = maxSensorDistance # borne
@@ -261,6 +287,9 @@ class AgentTypeB(object):
             self.setRotationValue( 0 )
 
         self.setTranslationValue(1) # normalisé -1,+1
+
+        return
+
 
         return
 

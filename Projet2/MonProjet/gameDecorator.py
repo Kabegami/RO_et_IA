@@ -9,10 +9,16 @@ def calcule_vitesseMoyenne(p1,p2):
     distance = math.sqrt(distance)
     return distance
 
+def environ_position(x,y,position):
+    if x  > position[0] - 10 or x < position[0] + 10:
+        if y > position[0] -10 or y < position[1] + 10:
+            return True
+    return False
+
 
 
 class gameDecorator(object):
-    def __init__(self, p, sensors, maxSensorDistance, old_position=None):
+    def __init__(self, p, sensors, maxSensorDistance, liste_equipier, old_position=None, old_position_adv_plus_proche=None):
         self.p = p
         self.sensors = sensors
         self.senseur_info = sensors[p]
@@ -41,6 +47,9 @@ class gameDecorator(object):
             self.vitesse = calcule_vitesseMoyenne(self.position, old_position)
         else:
             self.vitesse = 1
+        self.liste_equipier = liste_equipier
+        self.old_position_adv_plus_proche = old_position_adv_plus_proche
+        self.vitesse_adv_plus_proche = None
 
     @property
     def detecte_objet(self):
@@ -88,26 +97,42 @@ class gameDecorator(object):
                 s_plus_proche = senseur
         return s_plus_proche
         
+    def adv_plus_proche(self):
+        print("appel de adv_plus_proche")
+        Lsenseur = self.get_adversaire_devant()
+        senseur = self.plus_proche(Lsenseur)
+        playerTMP = senseur.sprite
+        print("position de l'adversaire avant : ",self.old_position_adv_plus_proche)
+        if self.old_position_adv_plus_proche is not None:
+            self.vitesse_adv_plus_proche = calcule_vitesseMoyenne(playerTMP.get_centroid(),self.old_position_adv_plus_proche)
+        self.old_position_adv_plus_proche = playerTMP.get_centroid()
+        print("ancienne position de l'adversaire : {}".format(self.old_position_adv_plus_proche))
+        return senseur
         
-
     
 
     def est_obstacle(self,senseur):
         return senseur.layer != "joueur"
 
+    def est_joueur(self, senseur):
+        return senseur.layer == "joueur"
+    
     def est_advsersaire(self, senseur):
+        print("appel de est_advsersaire")
+        print("--------------------------")
+        if not(self.est_joueur(senseur)):
+            return False
         playerTMP = senseur.sprite
-        print(playerTMP)
-        if playerTMP is None:
-            return False
-        if self.est_obstacle(senseur):
-            return False
+        (x,y) = playerTMP.get_centroid()
+        #print("liste equipier : {}".format(self.liste_equipier))
+        for equipier in self.liste_equipier:
+            print("(x,y) : ({}, {}), equipier :{}".format(x,y,equipier.get_centroid()))
+            if (x,y) == equipier.get_centroid():
+                print("c'est un equipier")
+                return False
+        print("adversaire trouvé en :",(x,y))
+        return True
         
-        print(playerTMP.numero)
-        #if playerTMP.name != self.p.agentType:
-        #    return True
-        return False
-
     def detecte_adversaire(self, senseur):
         if self.senseur_detecte_objet(senseur):
             if self.est_advsersaire(senseur):
@@ -132,8 +157,6 @@ class gameDecorator(object):
             if self.est_advsersaire(senseur):
                 return True
         return False
-
-    
 
     
     
