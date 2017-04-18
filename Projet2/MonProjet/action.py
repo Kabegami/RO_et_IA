@@ -6,7 +6,7 @@ maxTranslationSpeed = 1
 SensorBelt = [-170,-80,-40,-20,+20,40,80,+170]  
 
 
-import random
+from random import * 
 import math
 
 
@@ -93,8 +93,8 @@ def step_tout_droit(g):
     return (1,0)
 
 def step_random(g):
-    x = random.randint(-1,1)
-    y = random.randint(-1,1)
+    x = randint(-1,1)
+    y = randint(-1,1)
     return ((x,y))
 
 def step_traqueur(g):

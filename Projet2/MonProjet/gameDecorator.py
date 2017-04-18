@@ -62,6 +62,21 @@ class gameDecorator(object):
     def detecte_objet_devant(self):
         return self.liste_senseur_detecte_objet(self.senseurAvant)
 
+    
+    @property
+    def detecte_objet_proche_devant(self):
+        for senseur in self.senseurDevant:
+            if senseur.dist_from_border < 10:
+                return True
+        return False
+
+    @property
+    def detecte_objet_juste_devant(self):
+        for senseur in self.senseurDevant:
+            if senseur.dist_from_border < self.maxSensorDistance:
+                return True
+        return False
+
     @property
     def detecte_objet_droit(self):
         Lsenseur = [self.gauche[-1], self.droite[0]]
@@ -118,8 +133,8 @@ class gameDecorator(object):
         return senseur.layer == "joueur"
     
     def est_advsersaire(self, senseur):
-        #print("appel de est_advsersaire")
-        #print("--------------------------")
+        if not(self.senseur_detecte_objet(senseur)):
+            return False
         if not(self.est_joueur(senseur)):
             return False
         playerTMP = senseur.sprite
