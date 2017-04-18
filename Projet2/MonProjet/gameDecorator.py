@@ -113,16 +113,16 @@ class gameDecorator(object):
         return s_plus_proche
         
     def adv_plus_proche(self):
-        print("appel de adv_plus_proche")
+        #print("appel de adv_plus_proche")
         Lsenseur = self.get_adversaire_devant()
         senseur = self.plus_proche(Lsenseur)
         playerTMP = senseur.sprite
-        print("position de l'adversaire avant : ",self.old_position_adv_plus_proche)
+        #print("position de l'adversaire avant : ",self.old_position_adv_plus_proche)
         if self.old_position_adv_plus_proche is not None:
             self.vitesse_adv_plus_proche = calcule_vitesseMoyenne(playerTMP.get_centroid(),self.old_position_adv_plus_proche)
-            print("vitesse calcule : {}".format(self.vitesse_adv_plus_proche))
+            #print("vitesse calcule : {}".format(self.vitesse_adv_plus_proche))
         self.old_position_adv_plus_proche = playerTMP.get_centroid()
-        print("ancienne position de l'adversaire : {}".format(self.old_position_adv_plus_proche))
+        #print("ancienne position de l'adversaire : {}".format(self.old_position_adv_plus_proche))
         return senseur
     
 

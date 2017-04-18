@@ -98,7 +98,7 @@ def step_random(g):
     return ((x,y))
 
 def step_traqueur(g):
-    print("action : traqueur")
+    #print("action : traqueur")
     senseur = g.adv_plus_proche()
     #senseur.rel_angle_degree donne l'angle relatif pas besoin de le calculer
     angle = senseur.rel_angle_degree

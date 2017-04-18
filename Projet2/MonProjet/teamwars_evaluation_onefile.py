@@ -147,7 +147,7 @@ class AgentTypeA(object):
 
     def step(self):
 
-        color( (0,255,0) )
+        color( (255,0,0) )
         circle( *self.getRobot().get_centroid() , r = 22) # je dessine un rond bleu autour de ce robot
 
         #print "robot #", self.id, " -- step"
@@ -234,71 +234,162 @@ class AgentTypeB(object):
     # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
     # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    teamname = "Team Challenger"
+     
+    teamname = "Equipe Pingouin" # A modifier avec le nom de votre équipe 
+ 
+ 
+    def step(self): 
+ 
+         
+        action=["default"] 
+        if self.id!=3:  
+            color( (0,255,0) ) 
+            circle( *self.getRobot().get_centroid() , r = 22) # je dessine un rond bleu autour de ce robot 
+        if self.id==3: 
+            color( (200,255,0) ) 
+            circle( *self.getRobot().get_centroid() , r = 22) # je dessine un rond bleu autour de ce robot 
+ 
+        if (iteration==0): 
+                self.get_stuck=[k for k in range(100)] 
+                self.get_stuck_sol=0 
+                self.get_stuck_sol=0 
+                self.get_suivi=0 
+ 
+        p = self.robot 
+         
+        self.get_stuck[iteration%100]=(int(self.getRobot().get_centroid()[0]),int(self.getRobot().get_centroid()[1])) #SE DECOINCER 
+        if (self.get_stuck.count(self.get_stuck[0])==100) or self.get_stuck_sol!=0: 
+            if self.get_stuck_sol==0: 
+                self.get_stuck_sol=60 
+            action.append("debloque") 
+ 
+ 
+        mes_sensors=sensors[p] 
+        mes_sensor_dist=[] 
+ 
+        for i in range( len (SensorBelt)): 
+            if mes_sensors[i].dist_from_border > maxSensorDistance: 
+                mes_sensor_dist.append(maxSensorDistance) 
+            else: 
+                mes_sensor_dist.append(mes_sensors[i].dist_from_border) 
+             
+        sensor_actif=mes_sensor_dist.index(min(mes_sensor_dist)) 
+         
+        if mes_sensors[0]< maxSensorDistance or mes_sensors[7]< maxSensorDistance: 
+            if (mes_sensors[0].layer=='joueur' and agents[mes_sensors[0].sprite.numero].teamname != self.teamname) or (mes_sensors[7].layer=='joueur' and agents[mes_sensors[7].sprite.numero].teamname != self.teamname ): 
+                action.append("suivi") 
+         
+        for dist in sorted(mes_sensor_dist): 
+            if dist <= maxSensorDistance and mes_sensors[mes_sensor_dist.index(dist)].layer=='joueur' and agents[mes_sensors[mes_sensor_dist.index(dist)].sprite.numero].teamname != self.teamname: 
+                sensor_actif=mes_sensor_dist.index(dist) 
+                action.append("suivre") 
+                break 
+            if dist < maxSensorDistance and mes_sensors[mes_sensor_dist.index(dist)].layer!='joueur' and self.id==3 : 
+                if "longer_mur" not in action : 
+                    action.append("longer_mur") 
+        if iteration> 3000  : 
+            for i in action: 
+                if i=="longer_mur": 
+                    action.remove("longer_mur") 
+ 
+ 
+                 
+        if "debloque" in action  and "suivre" not in action : 
+            self.setTranslationValue(-  1) 
+            self.setRotationValue(-1) 
+            self.get_stuck_sol-=1 
+            return 
+             
+             
+        if "suivre" in action : #Braitenberg 
+            suivre_action=[] 
+            sensor_mur=-1 
+            for dist  in sorted(mes_sensor_dist): 
+                if dist < maxSensorDistance and mes_sensors[mes_sensor_dist.index(dist)].layer!='joueur': 
+                    if sensor_mur==-1: 
+                        suivre_action.append("mur") 
+                        sensor_mur=mes_sensor_dist.index(dist) 
+                 
+                if dist < maxSensorDistance and mes_sensors[mes_sensor_dist.index(dist)].layer =='joueur' and agents[mes_sensors[mes_sensor_dist.index(dist)].sprite.numero].teamname == self.teamname: 
+                    suivre_action.append("allie") 
+                    sensor_actif=mes_sensor_dist.index(dist) 
+                    break 
+             
+            if "allie" in suivre_action: 
+                self.setRotationValue(min(max(-SensorBelt[sensor_actif],-1),1)) 
+                self.setTranslationValue(1) 
+                return 
+                 
+            if "mur" in suivre_action: 
+                self.setRotationValue(min(max(-SensorBelt[sensor_actif],-1),1)) 
+                self.setTranslationValue(1) 
+             
+                return 
+            self.setRotationValue(SensorBelt[sensor_actif]) 
+            self.setTranslationValue(1) 
+            return 
+             
+             
+             
+        if "longer_mur" in action: 
+            params=[-4.086167170950773, -6.038431058494292, 7.181717000814547, -9.996810957500145, -4.096088341360433, 2.9025837359974056, -1.1459248815946896, 5.840940909524983, 4.882253501819742, 9.015186967705832, 6.007115140748101, -7.05062465600116, 6.990188382106539, 5.016101439746036, -3.9442216557519902, 9.010315955234221, 6.93679601218957, 1.016186562032669, -3.984532656399388, 8.923858574715565, 6.020989356764953, 3.969685343129087, -4.015624458330414] #longer de près 
+            if iteration<30 or iteration>2000: 
+                params=[-6.014298310363931, -2.0043056458492092, -0.08217555350370737, -6.938435513100887, -5.090125638547439, -5.946417734840245, -1.8737868516608396, 9.978996597312031, 1.983987439954586, -3.912707174507799, -3.1042877708128196, 2.938398098624969, 0.9565086554486514, 2.963638690736145, -6.934159536678535, 6.020924350639659, -1.970793377831738, 3.9905647338153294, -0.9344430587521306, 2.023928012462064, 2.9531607973471674, -9.078462876711596, 8.04465616778602] #longer de plus loin 
+ 
+ 
+            p = self.robot 
+            sensor_infos = sensors[p] 
+            neurone1 = 0 
+            neurone2 = 0 
+      
+            k = 0 
+             
+            for i in range(len(SensorBelt)): 
+                dist = sensor_infos[i].dist_from_border/maxSensorDistance 
+                neurone1 += dist * params[k] 
+                k = k + 1 
+            neurone1+= 1.0* params[k] 
+            k=k+1 
+     
+            for i in range(len(SensorBelt)): 
+                dist = sensor_infos[i].dist_from_border/maxSensorDistance 
+                neurone2 += dist * params[k] 
+                k = k + 1 
+            neurone2+=1.0 * params[k] 
+            k+=1 
+     
+            neurone1=(1.0+math.tanh(neurone1))/2 
+            neurone2=(1.0+math.tanh(neurone2))/2 
+     
+                 
+            translation=params[k]*neurone1+params[k+1]*neurone2+params[k+2] 
+            k+=2 
+            rotation=params[k]*neurone1+params[k+1]*neurone2+params[k+2] 
+            #print "r =",rotation," - t =",translation 
+            self.setRotationValue( min(max(rotation,-1),1) ) 
+            self.setTranslationValue( min(max(translation,-1),1) ) 
+             
+     
+     
+            return 
+ 
+        if "default" in action : #BRAITENBERG 
+            params=[1,1,1,1,-1,-1,-1,-1] 
+            if min(mes_sensor_dist)<maxSensorDistance: 
+                 
+                self.setRotationValue(params[sensor_actif]+0.10*random()) 
+            else: 
+                self.setRotationValue(0) 
+            self.setTranslationValue(1)
 
-    def step(self):
-        
-        color( (0,0,255) )
-        circle( *self.getRobot().get_centroid() , r = 22) # je dessine un rond bleu autour de ce robot
-        
-        #print "robot #", self.id, " -- step"
-        
-        p = self.robot
-        
-        # actions
-        sensor_infos = sensors[p] # sensor_infos est une liste de namedtuple (un par capteur).
-        #print "sensor_infos: ", sensor_infos[0].dist_from_border
-        distGauche = sensor_infos[2].dist_from_border
-        if distGauche > maxSensorDistance:
-            distGauche = maxSensorDistance # borne
-        distGauche2= sensor_infos[3].dist_from_border
-        if distGauche2 > maxSensorDistance:
-            distGauche2 = maxSensorDistance # borne
-        distGauche3= sensor_infos[1].dist_from_border
-        if distGauche3 > maxSensorDistance:
-            distGauche3 = maxSensorDistance # borne
-        distDroite = sensor_infos[5].dist_from_border
-        if distDroite > maxSensorDistance:
-            distDroite = maxSensorDistance # borne
-        distDroite2= sensor_infos[4].dist_from_border
-        if distDroite2 > maxSensorDistance:
-            distDroite2 = maxSensorDistance # borne
-        distDroite3= sensor_infos[6].dist_from_border
-        if distDroite3 > maxSensorDistance:
-            distDroite3 = maxSensorDistance # borne
-        
-        if distGauche < distDroite:
-            p.rotate( +1 )
-        elif distGauche > distDroite:
-            p.rotate( -1 )
-        elif distGauche2 < distDroite2:
-            p.rotate( +0.5 )
-        elif distGauche2 > distDroite2:
-            p.rotate( -0.5 )
-        elif distGauche3 < distDroite3:
-            p.rotate( +0.75 + 0.25*random() )
-        elif distGauche3 > distDroite3:
-            p.rotate( -0.75 - 0.25*random() )
 
-        else:
-            p.rotate( 0.1*random()-.05 )
-
-        p.forward(1) # normalisé -1,+1
-        
-
-        return
-
-    # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-    # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
-
-
+  
     def setTranslationValue(self,value):
         if value > 1:
-            print "[WARNING] translation value not in [-1,+1]. Normalizing."
+            #print "[WARNING] translation value not in [-1,+1]. Normalizing."
             value = maxTranslationSpeed
         elif value < -1:
-            print "[WARNING] translation value not in [-1,+1]. Normalizing."
+            #print "[WARNING] translation value not in [-1,+1]. Normalizing."
             value = -maxTranslationSpeed
         else:
             value = value * maxTranslationSpeed
@@ -306,10 +397,10 @@ class AgentTypeB(object):
 
     def setRotationValue(self,value):
         if value > 1:
-            print "[WARNING] translation value not in [-1,+1]. Normalizing."
+            #print "[WARNING] translation value not in [-1,+1]. Normalizing."
             value = maxRotationSpeed
         elif value < -1:
-            print "[WARNING] translation value not in [-1,+1]. Normalizing."
+            #print "[WARNING] translation value not in [-1,+1]. Normalizing."
             value = -maxRotationSpeed
         else:
             value = value * maxRotationSpeed
