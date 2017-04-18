@@ -51,15 +51,10 @@
 # 
 
 from robosim import *
-from random import *
+from random import random, shuffle
 import time
 import sys
 import atexit
-import math
-from gameDecorator import *
-from action import *
-from condition import *
-from subsomption import *
 
 
 '''''''''''''''''''''''''''''
@@ -147,7 +142,7 @@ class AgentTypeA(object):
 
     def step(self):
 
-        color( (255,0,0) )
+        color( (0,0,255) )
         circle( *self.getRobot().get_centroid() , r = 22) # je dessine un rond bleu autour de ce robot
 
         #print "robot #", self.id, " -- step"
@@ -198,8 +193,6 @@ class AgentTypeA(object):
         self.robot.rotate(value)
 
 
-
-
 '''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''
 '''  Agent "B"            '''
@@ -211,8 +204,8 @@ class AgentTypeB(object):
     agentIdCounter = 0 # use as static
     id = -1
     robot = -1
-    agentType = "B"
 
+    agentType = "B"
 
     def __init__(self,robot):
         self.id = AgentTypeB.agentIdCounter
@@ -220,6 +213,7 @@ class AgentTypeB(object):
         #print "robot #", self.id, " -- init"
         self.robot = robot
         self.memoireCoord =  []
+
     def getType(self):
         return self.agentType
 
@@ -227,215 +221,78 @@ class AgentTypeB(object):
         return self.robot
 
 
+    # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    # =-= JOUEUR B -=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
-    teamname = "Equipe Alphabeta" # A modifier avec le nom de votre équipe
+    teamname = "Team Challenger"
 
     def step(self):
-	    if(iteration == 0):
-		self.previous0X = None
-		self.previous1X = None
-		self.previous2X = None
-		self.previous3X = None
-		self.previous4X = None
-	    if(self.id == 0):
-		color((0,0,255))
-		posX,posY =self.robot.get_centroid()
-	    elif (self.id == 1):
-		color((0,0, 255))
-		posX,posY = self.robot.get_centroid()
-	    elif (self.id == 2):
-		color((0, 0, 255)) #jaune
-		posX,posY = self.robot.get_centroid()
-	    elif (self.id == 3):
-		color((0, 0, 255))
-		posX,posY = self.robot.get_centroid()
-	    else:
-		color((0, 0, 0))
-		posX, posY = self.robot.get_centroid()
+        
+        color( (0,0,255) )
+        circle( *self.getRobot().get_centroid() , r = 22) # je dessine un rond bleu autour de ce robot
+        
+        #print "robot #", self.id, " -- step"
+        
+        p = self.robot
+        
+        # actions
+        sensor_infos = sensors[p] # sensor_infos est une liste de namedtuple (un par capteur).
+        #print "sensor_infos: ", sensor_infos[0].dist_from_border
+        distGauche = sensor_infos[2].dist_from_border
+        if distGauche > maxSensorDistance:
+            distGauche = maxSensorDistance # borne
+        distGauche2= sensor_infos[3].dist_from_border
+        if distGauche2 > maxSensorDistance:
+            distGauche2 = maxSensorDistance # borne
+        distGauche3= sensor_infos[1].dist_from_border
+        if distGauche3 > maxSensorDistance:
+            distGauche3 = maxSensorDistance # borne
+        distDroite = sensor_infos[5].dist_from_border
+        if distDroite > maxSensorDistance:
+            distDroite = maxSensorDistance # borne
+        distDroite2= sensor_infos[4].dist_from_border
+        if distDroite2 > maxSensorDistance:
+            distDroite2 = maxSensorDistance # borne
+        distDroite3= sensor_infos[6].dist_from_border
+        if distDroite3 > maxSensorDistance:
+            distDroite3 = maxSensorDistance # borne
+        
+        if distGauche < distDroite:
+            p.rotate( +1 )
+        elif distGauche > distDroite:
+            p.rotate( -1 )
+        elif distGauche2 < distDroite2:
+            p.rotate( +0.5 )
+        elif distGauche2 > distDroite2:
+            p.rotate( -0.5 )
+        elif distGauche3 < distDroite3:
+            p.rotate( +0.75 + 0.25*random() )
+        elif distGauche3 > distDroite3:
+            p.rotate( -0.75 - 0.25*random() )
 
+        else:
+            p.rotate( 0.1*random()-.05 )
 
+        p.forward(1) # normalisé -1,+1
+        
 
-	    circle(*self.getRobot().get_centroid(), r=22)  # je dessine un rond bleu autour de ce robot
-	    p=self.robot
-	    sensor_infos = sensors[p]
-	    previouspos = (0,0)
+        return
 
-	    if(self.id == 0): # marche tres bien 1 +1 es de base couleur cyan
-
-		params = \
-		    [0.1172769256085655, 0.027468689602350813, 0.011398372890395775, 0.09341119787122486,
-		     -0.03754198455716175,
-		     0.058088366556120624, 0.18351580392027833, 0.3038344530029045, 0.1985654640994996, 0.18491213822979372,
-		     -0.3834453871545748, -0.1492279440791229, -0.055155905313094424, 0.24432062785033867,
-		     0.12317275239124321,
-		     0.12910864054561286, -0.08920806662575052, -0.06759853972855828]
-
-		translation = 0
-		rotation = 0
-
-		k = 0
-
-		for i in range(len(SensorBelt)):
-		    dist = sensor_infos[i].dist_from_border / maxSensorDistance
-		    translation += dist * params[k]
-		    k = k + 1
-
-		translation += 1 * params[k]
-		k = k + 1
-
-		for i in range(len(SensorBelt)):
-		    dist = sensor_infos[i].dist_from_border / maxSensorDistance
-		    rotation += dist * params[k]
-		    k = k + 1
-
-		rotation += 1 * params[k]
-		k = k + 1
-
-		# print "r =",rotation," - t =",translation
-		self.r = abs(min(max(rotation, -1), 1))
-		self.setRotationValue(min(max(rotation, -1), 1))
-		self.setTranslationValue(min(max(translation, -1), 1))
-
-		thisX, thisY = self.robot.get_centroid()
-
-	    if (self.id == 1): #IA subsomption normal couleur vert
-		joueurdist = list()
-		murdist = list()
-		for i in range(0, len(sensor_infos)):
-		    if sensor_infos[i].layer == 'joueur':
-		        joueurdist.append((i, sensor_infos[i].dist_from_border))
-		    elif (sensor_infos[i].dist_from_border < 30):
-		        murdist.append((i, sensor_infos[i].dist_from_border))
-		if (len(joueurdist) > 0):
-		    minDistance = (joueurdist[0])
-		    for j in range(0, len(joueurdist)):
-		        if joueurdist[j][1] < minDistance[1]:
-		            minDistance = (joueurdist[j])
-		    if (minDistance[0] == 1 or minDistance[0] == 2 or minDistance[0] == 3):
-		        p.rotate(1)
-		    elif (minDistance[0] == 4 or minDistance[0] == 5 or minDistance[0] == 6):
-		        p.rotate(-1)
-		elif (len(murdist) > 0):
-		    minDistance = (murdist[0])
-		    for j in range(0, len(murdist)):
-		        if murdist[j][1] < minDistance[1]:
-		            minDistance = (murdist[j])
-		    if (minDistance[0] == 1 or minDistance[0] == 2 or minDistance[0] == 3):
-		        p.rotate(1)
-		    elif (minDistance[0] == 4 or minDistance[0] == 5 or minDistance[0] == 6):
-		        p.rotate(-1)
-		thisX,thisY=self.robot.get_centroid()
-		if(self.previous1X != None):
-		    Vtrans = math.sqrt((thisX - self.previous1X) ** 2 + (thisY - self.previous1Y) ** 2) / maxTranslationSpeed
-		    if(Vtrans == 0):
-		        p.rotate(-4)
-		p.forward(1)
-		self.previous1X = thisX
-		self.previous1Y = thisY
-
-	    if (self.id == 2): #comportement : longer les murs couleur rouge
-		joueurdist = list()
-		murdist = list()
-		for i in range(0, len(sensor_infos)):
-		    if sensor_infos[i].layer == 'joueur':
-		        joueurdist.append((i, sensor_infos[i].dist_from_border))
-		    elif (sensor_infos[i].dist_from_border < 30):
-		        murdist.append((i, sensor_infos[i].dist_from_border))
-		if (len(joueurdist) > 0):
-		    minDistance = (joueurdist[0])
-		    for j in range(0, len(joueurdist)):
-		        if joueurdist[j][1] < minDistance[1]:
-		            minDistance = (joueurdist[j])
-		    if (minDistance[0] == 1 or minDistance[0] == 2 or minDistance[0] == 3):
-		        p.rotate(1)
-		    elif (minDistance[0] == 4 or minDistance[0] == 5 or minDistance[0] == 6):
-		        p.rotate(-1)
-		elif (len(murdist) > 0):
-		    minDistance = (murdist[0])
-		    for j in range(0, len(murdist)):
-		        if murdist[j][1] < minDistance[1]:
-		            minDistance = (murdist[j])
-		    if (minDistance[0] == 3 or minDistance[0] == 4):
-		        if (minDistance[1] > 5):
-		            p.forward(0)
-		        else:
-		            p.rotate(-5)
-		    elif (minDistance[0] == 1 or minDistance[0] == 2):
-		        if (minDistance[1] > 5):
-		            p.rotate(-5)
-		        else:
-		            p.rotate(5)
-		    elif (minDistance[0] == 5 or minDistance[0] == 6):
-		        if (minDistance[1] > 5):
-		            p.rotate(5)
-		        else:
-		            p.rotate(-5)
-
-		thisX,thisY=self.robot.get_centroid()
-		if (self.previous2X != None):
-		    Vtrans = math.sqrt((thisX - self.previous2X) ** 2 + (thisY - self.previous2Y) ** 2) / maxTranslationSpeed
-		    if (Vtrans == 0):
-		        p.rotate(-2)
-		p.forward(1)
-		self.previous2X = thisX
-		self.previous2Y = thisY
-		
-		if(iteration > 3000):
-		    self.id = 1
-
-	    if (self.id == 3):
-
-		params = \
-		    [-0.03680722524074011, -0.31695745843247425, 0.0600528482412522, -0.16416499947717247,
-		     -0.03066013797849438, -0.14634425143062044, -0.11222421362460736, -0.05054001993692516,
-		     -0.2022348693322451, 0.3525712909861245, 0.038353152180470494, 0.21528862766699267,
-		     0.006384996562816884, -0.6478525246324305, 0.22371137471136973, -0.2466541395650095,
-		     -0.16976954169416375, 0.265709881413874]
-
-		params = \
-		            [0.002699745512749375, 0.08057158885496114, 0.20704857359908257, 0.24044810362682134,
-		             0.15585078746522926, 0.36653012431036236, 0.07251125564668084, -0.2261649863044871,
-		             0.10490887391523035, -0.07726168293440477, -0.2919159103602223, 0.026289825683322356,
-		             0.012649256993894764, 0.09380673640333623, 0.2106903551241851, 0.13836537377424174,
-		             -0.08936405383922516, -0.1455085276856592]
-
-
-
-		translation = 0
-		rotation = 0
-
-		k = 0
-
-		for i in range(len(SensorBelt)):
-		    dist = sensor_infos[i].dist_from_border / maxSensorDistance
-		    translation += dist * params[k]
-		    k = k + 1
-
-		translation += 1 * params[k]
-		k = k + 1
-
-		for i in range(len(SensorBelt)):
-		    dist = sensor_infos[i].dist_from_border / maxSensorDistance
-		    rotation += dist * params[k]
-		    k = k + 1
-
-		rotation += 1 * params[k]
-		k = k + 1
-
-		# print "r =",rotation," - t =",translation
-		self.r = abs(min(max(rotation, -1), 1))
-		self.setRotationValue(min(max(rotation, -1), 1))
-		self.setTranslationValue(min(max(translation, -1), 1))
-	    return
-
+    # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
+    # =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=
 
 
     def setTranslationValue(self,value):
         if value > 1:
-#            print "[WARNING] translation value not in [-1,+1]. Normalizing."
+            print "[WARNING] translation value not in [-1,+1]. Normalizing."
             value = maxTranslationSpeed
         elif value < -1:
-#            print "[WARNING] translation value not in [-1,+1]. Normalizing."
+            print "[WARNING] translation value not in [-1,+1]. Normalizing."
             value = -maxTranslationSpeed
         else:
             value = value * maxTranslationSpeed
@@ -443,15 +300,15 @@ class AgentTypeB(object):
 
     def setRotationValue(self,value):
         if value > 1:
-#            print "[WARNING] translation value not in [-1,+1]. Normalizing."
+            print "[WARNING] translation value not in [-1,+1]. Normalizing."
             value = maxRotationSpeed
         elif value < -1:
-#            print "[WARNING] translation value not in [-1,+1]. Normalizing."
+            print "[WARNING] translation value not in [-1,+1]. Normalizing."
             value = -maxRotationSpeed
         else:
             value = value * maxRotationSpeed
         self.robot.rotate(value)
- 
+
 
 '''''''''''''''''''''''''''''
 '''''''''''''''''''''''''''''
